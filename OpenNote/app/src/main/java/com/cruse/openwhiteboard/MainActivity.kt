@@ -231,6 +231,8 @@ class MainActivity : AppCompatActivity(), EngineCallbacksInterface, FileManagerD
     private lateinit var btnLockSelection: ImageButton
     private lateinit var btnColorSelection: FrameLayout
     private lateinit var viewSelectionColorDot: View
+    private lateinit var btnFillShapeSelection: ImageButton
+    private lateinit var dividerFillShape: View
     private lateinit var btnCopySelection: ImageButton
     private lateinit var btnPasteSelection: ImageButton
     private lateinit var btnDuplicateSelection: ImageButton
@@ -1290,6 +1292,8 @@ class MainActivity : AppCompatActivity(), EngineCallbacksInterface, FileManagerD
         btnLockSelection           = findViewById(R.id.btnLockSelection)
         btnColorSelection          = findViewById(R.id.btnColorSelection)
         viewSelectionColorDot      = findViewById(R.id.viewSelectionColorDot)
+        btnFillShapeSelection      = findViewById(R.id.btnFillShapeSelection)
+        dividerFillShape           = findViewById(R.id.dividerFillShape)
         btnCopySelection           = findViewById(R.id.btnCopySelection)
         btnPasteSelection          = findViewById(R.id.btnPasteSelection)
         btnDuplicateSelection      = findViewById(R.id.btnDuplicateSelection)
@@ -1327,6 +1331,12 @@ class MainActivity : AppCompatActivity(), EngineCallbacksInterface, FileManagerD
             viewLiveColorPreview.backgroundTintList = ColorStateList.valueOf(curColor)
             etHexInput.setText(String.format("#%06X", 0xFFFFFF and curColor))
             modalColorPickerOverlay.visibility = View.VISIBLE
+        }
+
+        btnFillShapeSelection.setOnClickListener {
+            whiteboardSurface.toggleFillSelected()
+            val isFilled = whiteboardSurface.hasSelectedFilledShape()
+            btnFillShapeSelection.setColorFilter(Color.parseColor(if (isFilled) "#3B82F6" else "#4A4A4F"))
         }
 
         btnCopySelection.setOnClickListener {
@@ -2684,6 +2694,8 @@ class MainActivity : AppCompatActivity(), EngineCallbacksInterface, FileManagerD
                 if (isLocked) {
                     btnLockSelection.setImageResource(R.drawable.ic_unlock)
                     btnColorSelection.visibility = View.GONE
+                    btnFillShapeSelection.visibility = View.GONE
+                    dividerFillShape.visibility = View.GONE
                     btnCopySelection.visibility = View.GONE
                     btnPasteSelection.visibility = View.GONE
                     btnDuplicateSelection.visibility = View.GONE
@@ -2701,6 +2713,12 @@ class MainActivity : AppCompatActivity(), EngineCallbacksInterface, FileManagerD
                 } else {
                     btnLockSelection.setImageResource(R.drawable.ic_lock)
                     btnColorSelection.visibility = View.VISIBLE
+                    val hasShape = whiteboardSurface.hasSelectedShape()
+                    btnFillShapeSelection.visibility = if (hasShape) View.VISIBLE else View.GONE
+                    dividerFillShape.visibility = if (hasShape) View.VISIBLE else View.GONE
+                    val isFilled = whiteboardSurface.hasSelectedFilledShape()
+                    btnFillShapeSelection.setColorFilter(Color.parseColor(if (isFilled) "#3B82F6" else "#4A4A4F"))
+
                     btnCopySelection.visibility = View.VISIBLE
                     btnPasteSelection.visibility = View.VISIBLE
                     btnDuplicateSelection.visibility = View.VISIBLE

@@ -133,6 +133,9 @@ public:
     void rotateSelected(float deltaAngleRad);
     void rotate3DSelected(float deltaPitch, float deltaYaw);
     bool is3DSelection() const;
+    void toggleFillSelected();
+    bool hasSelectedShape() const;
+    bool hasSelectedFilledShape() const;
     void flipHorizontalSelected();
     void flipVerticalSelected();
     void bringToFrontSelected();

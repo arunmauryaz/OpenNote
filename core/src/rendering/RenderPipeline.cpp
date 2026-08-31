@@ -662,6 +662,28 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
         drawStroke(s, camera);
     };
 
+    auto drawFilled2DPolygon = [&](const std::vector<Vec2f>& pts) {
+        if (pts.size() < 3 || shape.fillColor.a == 0 || m_colorProgram == 0) return;
+        std::vector<float> screenVerts;
+        screenVerts.reserve(pts.size() * 2);
+        for (const auto& p : pts) {
+            Vec2f rp = rotPt(p);
+            Vec2f sp = camera.canvasToScreen(rp);
+            screenVerts.push_back(sp.x);
+            screenVerts.push_back(sp.y);
+        }
+        float mvp[16];
+        buildOrthoMat(mvp, 0.f, (float)m_width, (float)m_height, 0.f);
+        glUseProgram(m_colorProgram);
+        glUniformMatrix4fv(m_color_mvpLoc, 1, GL_FALSE, mvp);
+        glUniform4f(m_color_colorLoc, shape.fillColor.r / 255.f, shape.fillColor.g / 255.f, shape.fillColor.b / 255.f, shape.fillColor.a / 255.f);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+        glBufferData(GL_ARRAY_BUFFER, screenVerts.size() * sizeof(float), screenVerts.data(), GL_DYNAMIC_DRAW);
+        glEnableVertexAttribArray(m_color_posLoc);
+        glVertexAttribPointer(m_color_posLoc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, (GLsizei)pts.size());
+    };
+
     [[maybe_unused]] auto drawLine = [&](Vec2f p1, Vec2f p2) {
         drawPolyline({p1, p2});
     };
@@ -696,6 +718,7 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
             break;
         }
         case ShapeType::RECTANGLE: {
+            drawFilled2DPolygon({{l, t}, {r, t}, {r, bot}, {l, bot}});
             drawPolyline({{l, t}, {r, t}, {r, bot}, {l, bot}, {l, t}});
             break;
         }
@@ -709,18 +732,22 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
                 float theta = (float)i * 6.2831853f / (float)segments;
                 circlePts.push_back({midX + rx * std::cos(theta), midY + ry * std::sin(theta)});
             }
+            drawFilled2DPolygon(circlePts);
             drawPolyline(circlePts);
             break;
         }
         case ShapeType::TRIANGLE: {
+            drawFilled2DPolygon({{midX, t}, {r, bot}, {l, bot}});
             drawPolyline({{midX, t}, {r, bot}, {l, bot}, {midX, t}});
             break;
         }
         case ShapeType::RIGHT_TRIANGLE: {
+            drawFilled2DPolygon({{l, t}, {r, bot}, {l, bot}});
             drawPolyline({{l, t}, {r, bot}, {l, bot}, {l, t}});
             break;
         }
         case ShapeType::DIAMOND: {
+            drawFilled2DPolygon({{midX, t}, {r, midY}, {midX, bot}, {l, midY}});
             drawPolyline({{midX, t}, {r, midY}, {midX, bot}, {l, midY}, {midX, t}});
             break;
         }
@@ -734,6 +761,7 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
                 float angle = (float)i * 3.14159265f / 5.0f - 1.5707963f; // Start at top
                 starPts.push_back({midX + rad * std::cos(angle), midY + rad * std::sin(angle)});
             }
+            drawFilled2DPolygon(starPts);
             drawPolyline(starPts);
             break;
         }
@@ -746,6 +774,7 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
                 float angle = (float)i * 6.2831853f / 6.0f - 1.5707963f;
                 hexPts.push_back({midX + rx * std::cos(angle), midY + ry * std::sin(angle)});
             }
+            drawFilled2DPolygon(hexPts);
             drawPolyline(hexPts);
             break;
         }
@@ -795,6 +824,34 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
                 return rotPt(canvasUnrot);
             };
 
+            struct Face3D {
+                std::vector<Vec3f> pts;
+                float avgZ;
+                Vec3f norm;
+            };
+
+            std::vector<Face3D> faces;
+            auto addFace = [&](const std::vector<Vec3f>& pts, Vec3f norm) {
+                if (pts.size() < 3) return;
+                float sumZ = 0.0f;
+                for (const auto& p : pts) {
+                    float cosX = std::cos(shape.rot3DX), sinX = std::sin(shape.rot3DX);
+                    float y1 = p.y * cosX - p.z * sinX;
+                    float z1 = p.y * sinX + p.z * cosX;
+                    float x1 = p.x;
+
+                    float cosY = std::cos(shape.rot3DY), sinY = std::sin(shape.rot3DY);
+                    float x2 = x1 * cosY + z1 * sinY;
+                    float z2 = -x1 * sinY + z1 * cosY;
+
+                    float cosZ = std::cos(shape.rot3DZ), sinZ = std::sin(shape.rot3DZ);
+                    float z3 = z2;
+
+                    sumZ += z3;
+                }
+                faces.push_back({pts, sumZ / (float)pts.size(), norm});
+            };
+
             auto draw3DPolyline = [&](const std::vector<Vec3f>& pts3D) {
                 if (pts3D.size() < 2) return;
                 Stroke s;
@@ -821,7 +878,69 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
                 Vec3f v0{-hx, -hy, -hz}, v1{ hx, -hy, -hz}, v2{ hx,  hy, -hz}, v3{-hx,  hy, -hz};
                 Vec3f v4{-hx, -hy,  hz}, v5{ hx, -hy,  hz}, v6{ hx,  hy,  hz}, v7{-hx,  hy,  hz};
 
-                // Front face & Back face
+                addFace({v4, v5, v6, v7}, { 0.f,  0.f,  1.f}); // Front
+                addFace({v1, v0, v3, v2}, { 0.f,  0.f, -1.f}); // Back
+                addFace({v0, v1, v5, v4}, { 0.f, -1.f,  0.f}); // Top
+                addFace({v7, v6, v2, v3}, { 0.f,  1.f,  0.f}); // Bottom
+                addFace({v0, v4, v7, v3}, {-1.f,  0.f,  0.f}); // Left
+                addFace({v5, v1, v2, v6}, { 1.f,  0.f,  0.f}); // Right
+
+                // Render filled faces if enabled
+                if (shape.fillColor.a > 0 && m_colorProgram != 0 && !faces.empty()) {
+                    std::sort(faces.begin(), faces.end(), [](const Face3D& a, const Face3D& b) {
+                        return a.avgZ > b.avgZ; // Back to front
+                    });
+
+                    float mvp[16];
+                    buildOrthoMat(mvp, 0.f, (float)m_width, (float)m_height, 0.f);
+                    glUseProgram(m_colorProgram);
+                    glUniformMatrix4fv(m_color_mvpLoc, 1, GL_FALSE, mvp);
+                    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+                    glEnableVertexAttribArray(m_color_posLoc);
+
+                    for (const auto& face : faces) {
+                        float cosX = std::cos(shape.rot3DX), sinX = std::sin(shape.rot3DX);
+                        float ny1 = face.norm.y * cosX - face.norm.z * sinX;
+                        float nz1 = face.norm.y * sinX + face.norm.z * cosX;
+                        float nx1 = face.norm.x;
+
+                        float cosY = std::cos(shape.rot3DY), sinY = std::sin(shape.rot3DY);
+                        float nx2 = nx1 * cosY + nz1 * sinY;
+                        float nz2 = -nx1 * sinY + nz1 * cosY;
+                        float ny2 = ny1;
+
+                        float cosZ = std::cos(shape.rot3DZ), sinZ = std::sin(shape.rot3DZ);
+                        float nx3 = nx2 * cosZ - ny2 * sinZ;
+                        float ny3 = nx2 * sinZ + ny2 * cosZ;
+                        float nz3 = nz2;
+
+                        float lx = 0.35f, ly = -0.65f, lz = -0.65f;
+                        float dot = std::abs(nx3 * lx + ny3 * ly + nz3 * lz);
+                        float diffuse = 0.55f + 0.45f * dot;
+
+                        glUniform4f(m_color_colorLoc,
+                            std::min(1.0f, (shape.fillColor.r / 255.0f) * diffuse),
+                            std::min(1.0f, (shape.fillColor.g / 255.0f) * diffuse),
+                            std::min(1.0f, (shape.fillColor.b / 255.0f) * diffuse),
+                            shape.fillColor.a / 255.0f);
+
+                        std::vector<float> screenVerts;
+                        screenVerts.reserve(face.pts.size() * 2);
+                        for (const auto& p : face.pts) {
+                            Vec2f c2d = project3D(p.x, p.y, p.z);
+                            Vec2f s2d = camera.canvasToScreen(c2d);
+                            screenVerts.push_back(s2d.x);
+                            screenVerts.push_back(s2d.y);
+                        }
+
+                        glBufferData(GL_ARRAY_BUFFER, screenVerts.size() * sizeof(float), screenVerts.data(), GL_DYNAMIC_DRAW);
+                        glVertexAttribPointer(m_color_posLoc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+                        glDrawArrays(GL_TRIANGLE_FAN, 0, (GLsizei)face.pts.size());
+                    }
+                    glDisableVertexAttribArray(m_color_posLoc);
+                }
+
+                // Front face & Back face wireframe
                 draw3DPolyline({v4, v5, v6, v7, v4});
                 draw3DPolyline({v0, v1, v2, v3, v0});
                 // 4 Connecting edges
@@ -833,6 +952,35 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
             else if (type == ShapeType::SPHERE) {
                 float r = 0.75f;
                 int segments = 48;
+
+                if (shape.fillColor.a > 0 && m_colorProgram != 0) {
+                    float rx = w * 0.5f;
+                    float ry = h * 0.5f;
+                    std::vector<float> circleVerts;
+                    circleVerts.reserve((segments + 2) * 2);
+                    Vec2f centerScr = camera.canvasToScreen({midX, midY});
+                    circleVerts.push_back(centerScr.x);
+                    circleVerts.push_back(centerScr.y);
+                    for (int i = 0; i <= segments; i++) {
+                        float th = (float)i * 6.2831853f / (float)segments;
+                        Vec2f cp = rotPt({midX + rx * std::cos(th), midY + ry * std::sin(th)});
+                        Vec2f scr = camera.canvasToScreen(cp);
+                        circleVerts.push_back(scr.x);
+                        circleVerts.push_back(scr.y);
+                    }
+                    float mvp[16];
+                    buildOrthoMat(mvp, 0.f, (float)m_width, (float)m_height, 0.f);
+                    glUseProgram(m_colorProgram);
+                    glUniformMatrix4fv(m_color_mvpLoc, 1, GL_FALSE, mvp);
+                    glUniform4f(m_color_colorLoc, (shape.fillColor.r / 255.f) * 0.85f, (shape.fillColor.g / 255.f) * 0.85f, (shape.fillColor.b / 255.f) * 0.85f, shape.fillColor.a / 255.f);
+                    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+                    glBufferData(GL_ARRAY_BUFFER, circleVerts.size() * sizeof(float), circleVerts.data(), GL_DYNAMIC_DRAW);
+                    glEnableVertexAttribArray(m_color_posLoc);
+                    glVertexAttribPointer(m_color_posLoc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+                    glDrawArrays(GL_TRIANGLE_FAN, 0, (GLsizei)(segments + 2));
+                    glDisableVertexAttribArray(m_color_posLoc);
+                }
+
                 // Latitude ring (XZ plane)
                 std::vector<Vec3f> ringXZ; ringXZ.reserve(segments + 1);
                 for (int i = 0; i <= segments; i++) {
@@ -872,23 +1020,77 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
                 float hy = 0.7f;
                 int segments = 40;
 
-                // Top 3D circular cap
-                std::vector<Vec3f> topRing; topRing.reserve(segments + 1);
+                std::vector<Vec3f> topRing, botRing;
+                topRing.reserve(segments + 1);
+                botRing.reserve(segments + 1);
                 for (int i = 0; i <= segments; i++) {
                     float th = (float)i * 6.2831853f / (float)segments;
                     topRing.push_back({r * std::cos(th), -hy, r * std::sin(th)});
+                    botRing.push_back({r * std::cos(th),  hy, r * std::sin(th)});
                 }
+
+                addFace(topRing, {0.f, -1.f, 0.f});
+                addFace(botRing, {0.f,  1.f, 0.f});
+                for (int i = 0; i < segments; i++) {
+                    float thMid = ((float)i + 0.5f) * 6.2831853f / (float)segments;
+                    addFace({topRing[i], topRing[i+1], botRing[i+1], botRing[i]}, {std::cos(thMid), 0.f, std::sin(thMid)});
+                }
+
+                if (shape.fillColor.a > 0 && m_colorProgram != 0 && !faces.empty()) {
+                    std::sort(faces.begin(), faces.end(), [](const Face3D& a, const Face3D& b) {
+                        return a.avgZ > b.avgZ;
+                    });
+                    float mvp[16];
+                    buildOrthoMat(mvp, 0.f, (float)m_width, (float)m_height, 0.f);
+                    glUseProgram(m_colorProgram);
+                    glUniformMatrix4fv(m_color_mvpLoc, 1, GL_FALSE, mvp);
+                    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+                    glEnableVertexAttribArray(m_color_posLoc);
+
+                    for (const auto& face : faces) {
+                        float cosX = std::cos(shape.rot3DX), sinX = std::sin(shape.rot3DX);
+                        float ny1 = face.norm.y * cosX - face.norm.z * sinX;
+                        float nz1 = face.norm.y * sinX + face.norm.z * cosX;
+                        float nx1 = face.norm.x;
+
+                        float cosY = std::cos(shape.rot3DY), sinY = std::sin(shape.rot3DY);
+                        float nx2 = nx1 * cosY + nz1 * sinY;
+                        float nz2 = -nx1 * sinY + nz1 * cosY;
+                        float ny2 = ny1;
+
+                        float cosZ = std::cos(shape.rot3DZ), sinZ = std::sin(shape.rot3DZ);
+                        float nx3 = nx2 * cosZ - ny2 * sinZ;
+                        float ny3 = nx2 * sinZ + ny2 * cosZ;
+                        float nz3 = nz2;
+
+                        float lx = 0.35f, ly = -0.65f, lz = -0.65f;
+                        float dot = std::abs(nx3 * lx + ny3 * ly + nz3 * lz);
+                        float diffuse = 0.55f + 0.45f * dot;
+
+                        glUniform4f(m_color_colorLoc,
+                            std::min(1.0f, (shape.fillColor.r / 255.0f) * diffuse),
+                            std::min(1.0f, (shape.fillColor.g / 255.0f) * diffuse),
+                            std::min(1.0f, (shape.fillColor.b / 255.0f) * diffuse),
+                            shape.fillColor.a / 255.0f);
+
+                        std::vector<float> screenVerts;
+                        screenVerts.reserve(face.pts.size() * 2);
+                        for (const auto& p : face.pts) {
+                            Vec2f c2d = project3D(p.x, p.y, p.z);
+                            Vec2f s2d = camera.canvasToScreen(c2d);
+                            screenVerts.push_back(s2d.x);
+                            screenVerts.push_back(s2d.y);
+                        }
+
+                        glBufferData(GL_ARRAY_BUFFER, screenVerts.size() * sizeof(float), screenVerts.data(), GL_DYNAMIC_DRAW);
+                        glVertexAttribPointer(m_color_posLoc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+                        glDrawArrays(GL_TRIANGLE_FAN, 0, (GLsizei)face.pts.size());
+                    }
+                    glDisableVertexAttribArray(m_color_posLoc);
+                }
+
                 draw3DPolyline(topRing);
-
-                // Bottom 3D circular cap
-                std::vector<Vec3f> botRing; botRing.reserve(segments + 1);
-                for (int i = 0; i <= segments; i++) {
-                    float th = (float)i * 6.2831853f / (float)segments;
-                    botRing.push_back({r * std::cos(th), hy, r * std::sin(th)});
-                }
                 draw3DPolyline(botRing);
-
-                // 4 vertical connecting generator lines
                 draw3DLine({-r, -hy, 0.0f}, {-r, hy, 0.0f});
                 draw3DLine({ r, -hy, 0.0f}, { r, hy, 0.0f});
                 draw3DLine({0.0f, -hy, -r}, {0.0f, hy, -r});
@@ -900,15 +1102,73 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
                 Vec3f apex{0.0f, -hy, 0.0f};
                 int segments = 40;
 
-                // Base 3D circle
-                std::vector<Vec3f> baseRing; baseRing.reserve(segments + 1);
+                std::vector<Vec3f> baseRing;
+                baseRing.reserve(segments + 1);
                 for (int i = 0; i <= segments; i++) {
                     float th = (float)i * 6.2831853f / (float)segments;
                     baseRing.push_back({r * std::cos(th), hy, r * std::sin(th)});
                 }
-                draw3DPolyline(baseRing);
 
-                // 4 side generator lines from apex to base
+                addFace(baseRing, {0.f, 1.f, 0.f});
+                for (int i = 0; i < segments; i++) {
+                    float thMid = ((float)i + 0.5f) * 6.2831853f / (float)segments;
+                    addFace({apex, baseRing[i+1], baseRing[i]}, {std::cos(thMid) * 0.7f, -0.4f, std::sin(thMid) * 0.7f});
+                }
+
+                if (shape.fillColor.a > 0 && m_colorProgram != 0 && !faces.empty()) {
+                    std::sort(faces.begin(), faces.end(), [](const Face3D& a, const Face3D& b) {
+                        return a.avgZ > b.avgZ;
+                    });
+                    float mvp[16];
+                    buildOrthoMat(mvp, 0.f, (float)m_width, (float)m_height, 0.f);
+                    glUseProgram(m_colorProgram);
+                    glUniformMatrix4fv(m_color_mvpLoc, 1, GL_FALSE, mvp);
+                    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+                    glEnableVertexAttribArray(m_color_posLoc);
+
+                    for (const auto& face : faces) {
+                        float cosX = std::cos(shape.rot3DX), sinX = std::sin(shape.rot3DX);
+                        float ny1 = face.norm.y * cosX - face.norm.z * sinX;
+                        float nz1 = face.norm.y * sinX + face.norm.z * cosX;
+                        float nx1 = face.norm.x;
+
+                        float cosY = std::cos(shape.rot3DY), sinY = std::sin(shape.rot3DY);
+                        float nx2 = nx1 * cosY + nz1 * sinY;
+                        float nz2 = -nx1 * sinY + nz1 * cosY;
+                        float ny2 = ny1;
+
+                        float cosZ = std::cos(shape.rot3DZ), sinZ = std::sin(shape.rot3DZ);
+                        float nx3 = nx2 * cosZ - ny2 * sinZ;
+                        float ny3 = nx2 * sinZ + ny2 * cosZ;
+                        float nz3 = nz2;
+
+                        float lx = 0.35f, ly = -0.65f, lz = -0.65f;
+                        float dot = std::abs(nx3 * lx + ny3 * ly + nz3 * lz);
+                        float diffuse = 0.55f + 0.45f * dot;
+
+                        glUniform4f(m_color_colorLoc,
+                            std::min(1.0f, (shape.fillColor.r / 255.0f) * diffuse),
+                            std::min(1.0f, (shape.fillColor.g / 255.0f) * diffuse),
+                            std::min(1.0f, (shape.fillColor.b / 255.0f) * diffuse),
+                            shape.fillColor.a / 255.0f);
+
+                        std::vector<float> screenVerts;
+                        screenVerts.reserve(face.pts.size() * 2);
+                        for (const auto& p : face.pts) {
+                            Vec2f c2d = project3D(p.x, p.y, p.z);
+                            Vec2f s2d = camera.canvasToScreen(c2d);
+                            screenVerts.push_back(s2d.x);
+                            screenVerts.push_back(s2d.y);
+                        }
+
+                        glBufferData(GL_ARRAY_BUFFER, screenVerts.size() * sizeof(float), screenVerts.data(), GL_DYNAMIC_DRAW);
+                        glVertexAttribPointer(m_color_posLoc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+                        glDrawArrays(GL_TRIANGLE_FAN, 0, (GLsizei)face.pts.size());
+                    }
+                    glDisableVertexAttribArray(m_color_posLoc);
+                }
+
+                draw3DPolyline(baseRing);
                 draw3DLine(apex, {-r, hy, 0.0f});
                 draw3DLine(apex, { r, hy, 0.0f});
                 draw3DLine(apex, {0.0f, hy, -r});
@@ -919,23 +1179,77 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
                 float hy = 0.65f;
                 int segments = 40;
 
-                // Top 3D circle
-                std::vector<Vec3f> topRing; topRing.reserve(segments + 1);
+                std::vector<Vec3f> topRing, botRing;
+                topRing.reserve(segments + 1);
+                botRing.reserve(segments + 1);
                 for (int i = 0; i <= segments; i++) {
                     float th = (float)i * 6.2831853f / (float)segments;
                     topRing.push_back({rTop * std::cos(th), -hy, rTop * std::sin(th)});
+                    botRing.push_back({rBot * std::cos(th),  hy, rBot * std::sin(th)});
                 }
+
+                addFace(topRing, {0.f, -1.f, 0.f});
+                addFace(botRing, {0.f,  1.f, 0.f});
+                for (int i = 0; i < segments; i++) {
+                    float thMid = ((float)i + 0.5f) * 6.2831853f / (float)segments;
+                    addFace({topRing[i], topRing[i+1], botRing[i+1], botRing[i]}, {std::cos(thMid) * 0.8f, -0.2f, std::sin(thMid) * 0.8f});
+                }
+
+                if (shape.fillColor.a > 0 && m_colorProgram != 0 && !faces.empty()) {
+                    std::sort(faces.begin(), faces.end(), [](const Face3D& a, const Face3D& b) {
+                        return a.avgZ > b.avgZ;
+                    });
+                    float mvp[16];
+                    buildOrthoMat(mvp, 0.f, (float)m_width, (float)m_height, 0.f);
+                    glUseProgram(m_colorProgram);
+                    glUniformMatrix4fv(m_color_mvpLoc, 1, GL_FALSE, mvp);
+                    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+                    glEnableVertexAttribArray(m_color_posLoc);
+
+                    for (const auto& face : faces) {
+                        float cosX = std::cos(shape.rot3DX), sinX = std::sin(shape.rot3DX);
+                        float ny1 = face.norm.y * cosX - face.norm.z * sinX;
+                        float nz1 = face.norm.y * sinX + face.norm.z * cosX;
+                        float nx1 = face.norm.x;
+
+                        float cosY = std::cos(shape.rot3DY), sinY = std::sin(shape.rot3DY);
+                        float nx2 = nx1 * cosY + nz1 * sinY;
+                        float nz2 = -nx1 * sinY + nz1 * cosY;
+                        float ny2 = ny1;
+
+                        float cosZ = std::cos(shape.rot3DZ), sinZ = std::sin(shape.rot3DZ);
+                        float nx3 = nx2 * cosZ - ny2 * sinZ;
+                        float ny3 = nx2 * sinZ + ny2 * cosZ;
+                        float nz3 = nz2;
+
+                        float lx = 0.35f, ly = -0.65f, lz = -0.65f;
+                        float dot = std::abs(nx3 * lx + ny3 * ly + nz3 * lz);
+                        float diffuse = 0.55f + 0.45f * dot;
+
+                        glUniform4f(m_color_colorLoc,
+                            std::min(1.0f, (shape.fillColor.r / 255.0f) * diffuse),
+                            std::min(1.0f, (shape.fillColor.g / 255.0f) * diffuse),
+                            std::min(1.0f, (shape.fillColor.b / 255.0f) * diffuse),
+                            shape.fillColor.a / 255.0f);
+
+                        std::vector<float> screenVerts;
+                        screenVerts.reserve(face.pts.size() * 2);
+                        for (const auto& p : face.pts) {
+                            Vec2f c2d = project3D(p.x, p.y, p.z);
+                            Vec2f s2d = camera.canvasToScreen(c2d);
+                            screenVerts.push_back(s2d.x);
+                            screenVerts.push_back(s2d.y);
+                        }
+
+                        glBufferData(GL_ARRAY_BUFFER, screenVerts.size() * sizeof(float), screenVerts.data(), GL_DYNAMIC_DRAW);
+                        glVertexAttribPointer(m_color_posLoc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+                        glDrawArrays(GL_TRIANGLE_FAN, 0, (GLsizei)face.pts.size());
+                    }
+                    glDisableVertexAttribArray(m_color_posLoc);
+                }
+
                 draw3DPolyline(topRing);
-
-                // Bottom 3D circle
-                std::vector<Vec3f> botRing; botRing.reserve(segments + 1);
-                for (int i = 0; i <= segments; i++) {
-                    float th = (float)i * 6.2831853f / (float)segments;
-                    botRing.push_back({rBot * std::cos(th), hy, rBot * std::sin(th)});
-                }
                 draw3DPolyline(botRing);
-
-                // 4 connecting side lines
                 draw3DLine({-rTop, -hy, 0.0f}, {-rBot, hy, 0.0f});
                 draw3DLine({ rTop, -hy, 0.0f}, { rBot, hy, 0.0f});
                 draw3DLine({0.0f, -hy, -rTop}, {0.0f, hy, -rBot});
@@ -947,10 +1261,66 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
                 Vec3f apex{0.0f, -hy, 0.0f};
                 Vec3f b0{-s, hy, -s}, b1{ s, hy, -s}, b2{ s, hy,  s}, b3{-s, hy,  s};
 
-                // Base perimeter
-                draw3DPolyline({b0, b1, b2, b3, b0});
+                addFace({b3, b2, b1, b0}, { 0.f,  1.f,  0.f}); // Bottom base
+                addFace({apex, b2, b3},   { 0.f, -0.6f,  0.8f}); // Front face
+                addFace({apex, b0, b1},   { 0.f, -0.6f, -0.8f}); // Back face
+                addFace({apex, b3, b0},   {-0.8f, -0.6f, 0.f});  // Left face
+                addFace({apex, b1, b2},   { 0.8f, -0.6f, 0.f});  // Right face
 
-                // 4 corner edges to apex
+                if (shape.fillColor.a > 0 && m_colorProgram != 0 && !faces.empty()) {
+                    std::sort(faces.begin(), faces.end(), [](const Face3D& a, const Face3D& b) {
+                        return a.avgZ > b.avgZ;
+                    });
+                    float mvp[16];
+                    buildOrthoMat(mvp, 0.f, (float)m_width, (float)m_height, 0.f);
+                    glUseProgram(m_colorProgram);
+                    glUniformMatrix4fv(m_color_mvpLoc, 1, GL_FALSE, mvp);
+                    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+                    glEnableVertexAttribArray(m_color_posLoc);
+
+                    for (const auto& face : faces) {
+                        float cosX = std::cos(shape.rot3DX), sinX = std::sin(shape.rot3DX);
+                        float ny1 = face.norm.y * cosX - face.norm.z * sinX;
+                        float nz1 = face.norm.y * sinX + face.norm.z * cosX;
+                        float nx1 = face.norm.x;
+
+                        float cosY = std::cos(shape.rot3DY), sinY = std::sin(shape.rot3DY);
+                        float nx2 = nx1 * cosY + nz1 * sinY;
+                        float nz2 = -nx1 * sinY + nz1 * cosY;
+                        float ny2 = ny1;
+
+                        float cosZ = std::cos(shape.rot3DZ), sinZ = std::sin(shape.rot3DZ);
+                        float nx3 = nx2 * cosZ - ny2 * sinZ;
+                        float ny3 = nx2 * sinZ + ny2 * cosZ;
+                        float nz3 = nz2;
+
+                        float lx = 0.35f, ly = -0.65f, lz = -0.65f;
+                        float dot = std::abs(nx3 * lx + ny3 * ly + nz3 * lz);
+                        float diffuse = 0.55f + 0.45f * dot;
+
+                        glUniform4f(m_color_colorLoc,
+                            std::min(1.0f, (shape.fillColor.r / 255.0f) * diffuse),
+                            std::min(1.0f, (shape.fillColor.g / 255.0f) * diffuse),
+                            std::min(1.0f, (shape.fillColor.b / 255.0f) * diffuse),
+                            shape.fillColor.a / 255.0f);
+
+                        std::vector<float> screenVerts;
+                        screenVerts.reserve(face.pts.size() * 2);
+                        for (const auto& p : face.pts) {
+                            Vec2f c2d = project3D(p.x, p.y, p.z);
+                            Vec2f s2d = camera.canvasToScreen(c2d);
+                            screenVerts.push_back(s2d.x);
+                            screenVerts.push_back(s2d.y);
+                        }
+
+                        glBufferData(GL_ARRAY_BUFFER, screenVerts.size() * sizeof(float), screenVerts.data(), GL_DYNAMIC_DRAW);
+                        glVertexAttribPointer(m_color_posLoc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+                        glDrawArrays(GL_TRIANGLE_FAN, 0, (GLsizei)face.pts.size());
+                    }
+                    glDisableVertexAttribArray(m_color_posLoc);
+                }
+
+                draw3DPolyline({b0, b1, b2, b3, b0});
                 draw3DLine(apex, b0);
                 draw3DLine(apex, b1);
                 draw3DLine(apex, b2);
@@ -959,7 +1329,6 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
             else if (type == ShapeType::PRISM) {
                 float r  = 0.75f;
                 float hy = 0.65f;
-                // 3 vertices at 90, 210, 330 deg
                 float th0 = 1.5707963f;
                 float th1 = 3.6651914f;
                 float th2 = 5.7595865f;
@@ -972,11 +1341,67 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
                 Vec3f b1{r * std::cos(th1),  hy, r * std::sin(th1)};
                 Vec3f b2{r * std::cos(th2),  hy, r * std::sin(th2)};
 
-                // Top & bottom triangles
+                addFace({t0, t1, t2}, { 0.f, -1.f,  0.f}); // Top triangle
+                addFace({b2, b1, b0}, { 0.f,  1.f,  0.f}); // Bottom triangle
+                addFace({t0, t1, b1, b0}, {-0.866f, 0.f, -0.5f});
+                addFace({t1, t2, b2, b1}, { 0.f,    0.f,  1.0f});
+                addFace({t2, t0, b0, b2}, { 0.866f, 0.f, -0.5f});
+
+                if (shape.fillColor.a > 0 && m_colorProgram != 0 && !faces.empty()) {
+                    std::sort(faces.begin(), faces.end(), [](const Face3D& a, const Face3D& b) {
+                        return a.avgZ > b.avgZ;
+                    });
+                    float mvp[16];
+                    buildOrthoMat(mvp, 0.f, (float)m_width, (float)m_height, 0.f);
+                    glUseProgram(m_colorProgram);
+                    glUniformMatrix4fv(m_color_mvpLoc, 1, GL_FALSE, mvp);
+                    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+                    glEnableVertexAttribArray(m_color_posLoc);
+
+                    for (const auto& face : faces) {
+                        float cosX = std::cos(shape.rot3DX), sinX = std::sin(shape.rot3DX);
+                        float ny1 = face.norm.y * cosX - face.norm.z * sinX;
+                        float nz1 = face.norm.y * sinX + face.norm.z * cosX;
+                        float nx1 = face.norm.x;
+
+                        float cosY = std::cos(shape.rot3DY), sinY = std::sin(shape.rot3DY);
+                        float nx2 = nx1 * cosY + nz1 * sinY;
+                        float nz2 = -nx1 * sinY + nz1 * cosY;
+                        float ny2 = ny1;
+
+                        float cosZ = std::cos(shape.rot3DZ), sinZ = std::sin(shape.rot3DZ);
+                        float nx3 = nx2 * cosZ - ny2 * sinZ;
+                        float ny3 = nx2 * sinZ + ny2 * cosZ;
+                        float nz3 = nz2;
+
+                        float lx = 0.35f, ly = -0.65f, lz = -0.65f;
+                        float dot = std::abs(nx3 * lx + ny3 * ly + nz3 * lz);
+                        float diffuse = 0.55f + 0.45f * dot;
+
+                        glUniform4f(m_color_colorLoc,
+                            std::min(1.0f, (shape.fillColor.r / 255.0f) * diffuse),
+                            std::min(1.0f, (shape.fillColor.g / 255.0f) * diffuse),
+                            std::min(1.0f, (shape.fillColor.b / 255.0f) * diffuse),
+                            shape.fillColor.a / 255.0f);
+
+                        std::vector<float> screenVerts;
+                        screenVerts.reserve(face.pts.size() * 2);
+                        for (const auto& p : face.pts) {
+                            Vec2f c2d = project3D(p.x, p.y, p.z);
+                            Vec2f s2d = camera.canvasToScreen(c2d);
+                            screenVerts.push_back(s2d.x);
+                            screenVerts.push_back(s2d.y);
+                        }
+
+                        glBufferData(GL_ARRAY_BUFFER, screenVerts.size() * sizeof(float), screenVerts.data(), GL_DYNAMIC_DRAW);
+                        glVertexAttribPointer(m_color_posLoc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+                        glDrawArrays(GL_TRIANGLE_FAN, 0, (GLsizei)face.pts.size());
+                    }
+                    glDisableVertexAttribArray(m_color_posLoc);
+                }
+
                 draw3DPolyline({t0, t1, t2, t0});
                 draw3DPolyline({b0, b1, b2, b0});
-
-                // 3 vertical connecting edges
                 draw3DLine(t0, b0);
                 draw3DLine(t1, b1);
                 draw3DLine(t2, b2);

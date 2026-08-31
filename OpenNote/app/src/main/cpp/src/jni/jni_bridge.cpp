@@ -424,6 +424,30 @@ Java_com_cruse_openwhiteboard_engine_EngineJNI_nativeLockSelected(
 }
 
 JNIEXPORT void JNICALL
+Java_com_cruse_openwhiteboard_engine_EngineJNI_nativeToggleFillSelected(
+        JNIEnv*, jclass, jlong handle)
+{
+    auto* engine = getEngine(handle);
+    if (engine) engine->toggleFillSelected();
+}
+
+JNIEXPORT jboolean JNICALL
+Java_com_cruse_openwhiteboard_engine_EngineJNI_nativeHasSelectedFilledShape(
+        JNIEnv*, jclass, jlong handle)
+{
+    auto* engine = getEngine(handle);
+    return (engine && engine->hasSelectedFilledShape()) ? JNI_TRUE : JNI_FALSE;
+}
+
+JNIEXPORT jboolean JNICALL
+Java_com_cruse_openwhiteboard_engine_EngineJNI_nativeHasSelectedShape(
+        JNIEnv*, jclass, jlong handle)
+{
+    auto* engine = getEngine(handle);
+    return (engine && engine->hasSelectedShape()) ? JNI_TRUE : JNI_FALSE;
+}
+
+JNIEXPORT void JNICALL
 Java_com_cruse_openwhiteboard_engine_EngineJNI_nativeClearSelection(
         JNIEnv*, jclass, jlong handle)
 {

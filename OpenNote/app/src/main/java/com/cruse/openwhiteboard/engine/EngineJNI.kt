@@ -69,6 +69,9 @@ object EngineJNI {
     @JvmStatic external fun nativeHasClipboard(handle: Long): Boolean
     @JvmStatic external fun nativeSetSelectedColor(handle: Long, color: Int)
     @JvmStatic external fun nativeGetSelectedColor(handle: Long): Int
+    @JvmStatic external fun nativeToggleFillSelected(handle: Long)
+    @JvmStatic external fun nativeHasSelectedFilledShape(handle: Long): Boolean
+    @JvmStatic external fun nativeHasSelectedShape(handle: Long): Boolean
     @JvmStatic external fun nativeLockSelected(handle: Long)
     @JvmStatic external fun nativeClearSelection(handle: Long)
     @JvmStatic external fun nativeTapSelectAt(handle: Long, screenX: Float, screenY: Float): Boolean

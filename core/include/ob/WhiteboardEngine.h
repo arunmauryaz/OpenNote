@@ -96,6 +96,9 @@ public:
     void bringForwardSelected();
     void setSelectedColor(Color c);
     Color getSelectedColor() const;
+    void toggleFillSelected();
+    bool hasSelectedShape() const;
+    bool hasSelectedFilledShape() const;
 
     // ── Document API ──────────────────────────────────────────────────────
     void newDocument();

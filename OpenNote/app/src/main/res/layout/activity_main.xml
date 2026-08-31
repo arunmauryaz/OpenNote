@@ -3582,6 +3582,24 @@
             android:layout_marginHorizontal="6dp"
             android:background="#D1D1D6" />
 
+        <!-- [🪣] Fill Shape / Surface Shading Toggle -->
+        <ImageButton
+            android:id="@+id/btnFillShapeSelection"
+            android:layout_width="@dimen/selection_btn_size"
+            android:layout_height="@dimen/selection_btn_size"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Fill Shape / Surface Mode"
+            android:padding="@dimen/selection_btn_padding"
+            android:src="@drawable/ic_fill_shape"
+            app:tint="#4A4A4F" />
+
+        <View
+            android:id="@+id/dividerFillShape"
+            android:layout_width="1dp"
+            android:layout_height="20dp"
+            android:layout_marginHorizontal="6dp"
+            android:background="#D1D1D6" />
+
         <!-- [📋] Copy -->
         <ImageButton
             android:id="@+id/btnCopySelection"

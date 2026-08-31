@@ -1142,6 +1142,9 @@ class WhiteboardSurfaceView @JvmOverloads constructor(
     fun hasClipboard(): Boolean = if (engineHandle != 0L) EngineJNI.nativeHasClipboard(engineHandle) else false
     fun setSelectedColor(color: Int) { if (engineHandle != 0L) { EngineJNI.nativeSetSelectedColor(engineHandle, color); scheduleNextFrame() } }
     fun getSelectedColor(): Int      = if (engineHandle != 0L) EngineJNI.nativeGetSelectedColor(engineHandle) else 0xFF000000.toInt()
+    fun toggleFillSelected()         { if (engineHandle != 0L) { EngineJNI.nativeToggleFillSelected(engineHandle); scheduleNextFrame() } }
+    fun hasSelectedFilledShape(): Boolean = if (engineHandle != 0L) EngineJNI.nativeHasSelectedFilledShape(engineHandle) else false
+    fun hasSelectedShape(): Boolean       = if (engineHandle != 0L) EngineJNI.nativeHasSelectedShape(engineHandle) else false
     fun lockSelected()        { if (engineHandle != 0L) { EngineJNI.nativeLockSelected(engineHandle); scheduleNextFrame() } }
     fun clearSelection()      { if (engineHandle != 0L) { EngineJNI.nativeClearSelection(engineHandle); scheduleNextFrame() } }
     /**

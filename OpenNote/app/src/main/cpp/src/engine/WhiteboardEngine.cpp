@@ -325,6 +325,26 @@ Color WhiteboardEngine::getSelectedColor() const {
     return Color{0, 0, 0, 255};
 }
 
+void WhiteboardEngine::toggleFillSelected() {
+    if (m_toolMgr && m_toolMgr->selectionTool()) {
+        m_toolMgr->selectionTool()->toggleFillSelected();
+    }
+}
+
+bool WhiteboardEngine::hasSelectedShape() const {
+    if (m_toolMgr && m_toolMgr->selectionTool()) {
+        return m_toolMgr->selectionTool()->hasSelectedShape();
+    }
+    return false;
+}
+
+bool WhiteboardEngine::hasSelectedFilledShape() const {
+    if (m_toolMgr && m_toolMgr->selectionTool()) {
+        return m_toolMgr->selectionTool()->hasSelectedFilledShape();
+    }
+    return false;
+}
+
 // ─── Document API ─────────────────────────────────────────────────────────────
 
 void WhiteboardEngine::newDocument() {

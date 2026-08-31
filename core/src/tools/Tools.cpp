@@ -1435,6 +1435,62 @@ void SelectionTool::rotate3DSelected(float deltaPitch, float deltaYaw) {
     if (m_engine->callbacks().onInvalidate) m_engine->callbacks().onInvalidate();
 }
 
+bool SelectionTool::hasSelectedShape() const {
+    Page* page = m_engine->document().activePage_ptr();
+    if (!page || !m_hasSelection) return false;
+    for (const auto& shape : page->shapes) {
+        if (shape.isSelected && !shape.isErased) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool SelectionTool::hasSelectedFilledShape() const {
+    Page* page = m_engine->document().activePage_ptr();
+    if (!page || !m_hasSelection) return false;
+    for (const auto& shape : page->shapes) {
+        if (shape.isSelected && !shape.isErased && shape.fillColor.a > 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void SelectionTool::toggleFillSelected() {
+    Page* page = m_engine->document().activePage_ptr();
+    if (!page || !m_hasSelection || isLocked()) return;
+
+    auto beforeShapes = page->shapes;
+    bool changed = false;
+    bool anyFilled = hasSelectedFilledShape();
+
+    for (auto& shape : page->shapes) {
+        if (shape.isSelected && !shape.isErased && !shape.isLocked) {
+            if (anyFilled) {
+                // Skeleton mode
+                shape.fillColor = Color::transparent();
+            } else {
+                // Fill with Electric Blue #3B82F6 (RGBA 59, 130, 246, 255)
+                shape.fillColor = Color{59, 130, 246, 255};
+            }
+            changed = true;
+        }
+    }
+
+    if (changed) {
+        m_engine->pushCommand(std::make_unique<ModifyObjectsCommand>(
+            m_engine, page->id,
+            page->strokes, page->strokes,
+            std::move(beforeShapes), page->shapes,
+            page->images, page->images
+        ));
+        m_engine->invalidate(DIRTY_SHAPES);
+        if (m_engine->callbacks().onInvalidate) m_engine->callbacks().onInvalidate();
+        notifySelectionChanged();
+    }
+}
+
 void SelectionTool::flipHorizontalSelected() {
     if (!m_hasSelection || isLocked()) return;
     Page* page = m_engine->document().activePage_ptr();
