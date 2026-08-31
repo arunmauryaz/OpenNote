@@ -940,78 +940,171 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
                     glDisableVertexAttribArray(m_color_posLoc);
                 }
 
-                // Front face & Back face wireframe
-                draw3DPolyline({v4, v5, v6, v7, v4});
-                draw3DPolyline({v0, v1, v2, v3, v0});
-                // 4 Connecting edges
-                draw3DLine(v0, v4);
-                draw3DLine(v1, v5);
-                draw3DLine(v2, v6);
-                draw3DLine(v3, v7);
+                // Wireframe strokes only when in Skeleton mode (unfilled)
+                if (shape.fillColor.a == 0) {
+                    // Front face & Back face wireframe
+                    draw3DPolyline({v4, v5, v6, v7, v4});
+                    draw3DPolyline({v0, v1, v2, v3, v0});
+                    // 4 Connecting edges
+                    draw3DLine(v0, v4);
+                    draw3DLine(v1, v5);
+                    draw3DLine(v2, v6);
+                    draw3DLine(v3, v7);
+                }
             }
             else if (type == ShapeType::SPHERE) {
-                float r = 0.75f;
-                int segments = 48;
+                float r = 0.90f;
+                int latBands = 14; // Latitude bands (-90 to +90 deg)
+                int lonBands = 24; // Longitude meridians (0 to 360 deg)
 
-                if (shape.fillColor.a > 0 && m_colorProgram != 0) {
-                    float rx = w * 0.5f;
-                    float ry = h * 0.5f;
-                    std::vector<float> circleVerts;
-                    circleVerts.reserve((segments + 2) * 2);
-                    Vec2f centerScr = camera.canvasToScreen({midX, midY});
-                    circleVerts.push_back(centerScr.x);
-                    circleVerts.push_back(centerScr.y);
-                    for (int i = 0; i <= segments; i++) {
-                        float th = (float)i * 6.2831853f / (float)segments;
-                        Vec2f cp = rotPt({midX + rx * std::cos(th), midY + ry * std::sin(th)});
-                        Vec2f scr = camera.canvasToScreen(cp);
-                        circleVerts.push_back(scr.x);
-                        circleVerts.push_back(scr.y);
+                // 1. Generate 3D UV Sphere vertex grid
+                std::vector<std::vector<Vec3f>> grid(latBands + 1, std::vector<Vec3f>(lonBands + 1));
+                for (int lat = 0; lat <= latBands; lat++) {
+                    float phi = -1.5707963f + 3.1415926f * ((float)lat / (float)latBands); // -PI/2 to +PI/2
+                    float cosPhi = std::cos(phi);
+                    float sinPhi = std::sin(phi);
+                    for (int lon = 0; lon <= lonBands; lon++) {
+                        float theta = 6.2831853f * ((float)lon / (float)lonBands);
+                        grid[lat][lon] = {
+                            r * cosPhi * std::sin(theta),
+                            -r * sinPhi, // -Y is top
+                            r * cosPhi * std::cos(theta)
+                        };
                     }
+                }
+
+                // 2. Add all UV 3D quads as faces for smooth 3D lighting and fill
+                for (int lat = 0; lat < latBands; lat++) {
+                    float phiMid = -1.5707963f + 3.1415926f * ((float)lat + 0.5f) / (float)latBands;
+                    float cosPhiM = std::cos(phiMid);
+                    float sinPhiM = std::sin(phiMid);
+                    for (int lon = 0; lon < lonBands; lon++) {
+                        float thetaMid = 6.2831853f * ((float)lon + 0.5f) / (float)lonBands;
+                        Vec3f norm = {
+                            cosPhiM * std::sin(thetaMid),
+                            -sinPhiM,
+                            cosPhiM * std::cos(thetaMid)
+                        };
+                        Vec3f p0 = grid[lat][lon];
+                        Vec3f p1 = grid[lat][lon + 1];
+                        Vec3f p2 = grid[lat + 1][lon + 1];
+                        Vec3f p3 = grid[lat + 1][lon];
+                        addFace({p0, p1, p2, p3}, norm);
+                    }
+                }
+
+                // 3. Render filled depth-sorted faces if filled
+                if (shape.fillColor.a > 0 && m_colorProgram != 0 && !faces.empty()) {
+                    std::sort(faces.begin(), faces.end(), [](const Face3D& a, const Face3D& b) {
+                        return a.avgZ > b.avgZ;
+                    });
                     float mvp[16];
                     buildOrthoMat(mvp, 0.f, (float)m_width, (float)m_height, 0.f);
                     glUseProgram(m_colorProgram);
                     glUniformMatrix4fv(m_color_mvpLoc, 1, GL_FALSE, mvp);
-                    glUniform4f(m_color_colorLoc, (shape.fillColor.r / 255.f) * 0.85f, (shape.fillColor.g / 255.f) * 0.85f, (shape.fillColor.b / 255.f) * 0.85f, shape.fillColor.a / 255.f);
                     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-                    glBufferData(GL_ARRAY_BUFFER, circleVerts.size() * sizeof(float), circleVerts.data(), GL_DYNAMIC_DRAW);
                     glEnableVertexAttribArray(m_color_posLoc);
-                    glVertexAttribPointer(m_color_posLoc, 2, GL_FLOAT, GL_FALSE, 0, 0);
-                    glDrawArrays(GL_TRIANGLE_FAN, 0, (GLsizei)(segments + 2));
+
+                    for (const auto& face : faces) {
+                        float cosX = std::cos(shape.rot3DX), sinX = std::sin(shape.rot3DX);
+                        float ny1 = face.norm.y * cosX - face.norm.z * sinX;
+                        float nz1 = face.norm.y * sinX + face.norm.z * cosX;
+                        float nx1 = face.norm.x;
+
+                        float cosY = std::cos(shape.rot3DY), sinY = std::sin(shape.rot3DY);
+                        float nx2 = nx1 * cosY + nz1 * sinY;
+                        float nz2 = -nx1 * sinY + nz1 * cosY;
+                        float ny2 = ny1;
+
+                        float cosZ = std::cos(shape.rot3DZ), sinZ = std::sin(shape.rot3DZ);
+                        float nx3 = nx2 * cosZ - ny2 * sinZ;
+                        float ny3 = nx2 * sinZ + ny2 * cosZ;
+                        float nz3 = nz2;
+
+                        // Spherical directional light from top-front-left
+                        float lx = 0.40f, ly = -0.60f, lz = -0.69f;
+                        float dot = std::max(0.0f, nx3 * lx + ny3 * ly + nz3 * lz);
+                        float diffuse = 0.35f + 0.65f * dot;
+
+                        glUniform4f(m_color_colorLoc,
+                            std::min(1.0f, (shape.fillColor.r / 255.0f) * diffuse),
+                            std::min(1.0f, (shape.fillColor.g / 255.0f) * diffuse),
+                            std::min(1.0f, (shape.fillColor.b / 255.0f) * diffuse),
+                            shape.fillColor.a / 255.0f);
+
+                        std::vector<float> screenVerts;
+                        screenVerts.reserve(face.pts.size() * 2);
+                        for (const auto& p : face.pts) {
+                            Vec2f c2d = project3D(p.x, p.y, p.z);
+                            Vec2f s2d = camera.canvasToScreen(c2d);
+                            screenVerts.push_back(s2d.x);
+                            screenVerts.push_back(s2d.y);
+                        }
+
+                        glBufferData(GL_ARRAY_BUFFER, screenVerts.size() * sizeof(float), screenVerts.data(), GL_DYNAMIC_DRAW);
+                        glVertexAttribPointer(m_color_posLoc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+                        glDrawArrays(GL_TRIANGLE_FAN, 0, (GLsizei)face.pts.size());
+                    }
                     glDisableVertexAttribArray(m_color_posLoc);
                 }
 
-                // Latitude ring (XZ plane)
-                std::vector<Vec3f> ringXZ; ringXZ.reserve(segments + 1);
-                for (int i = 0; i <= segments; i++) {
-                    float th = (float)i * 6.2831853f / (float)segments;
-                    ringXZ.push_back({r * std::cos(th), 0.0f, r * std::sin(th)});
-                }
-                draw3DPolyline(ringXZ);
+                // 4. Wireframe: Latitude circles (parallels) + Longitude meridians (Skeleton mode only)
+                if (shape.fillColor.a == 0) {
+                    auto draw3DFrontPolyline = [&](const std::vector<Vec3f>& pts3D) {
+                        if (pts3D.size() < 2) return;
+                        for (size_t i = 0; i + 1 < pts3D.size(); i++) {
+                            Vec3f pA = pts3D[i];
+                            Vec3f pB = pts3D[i+1];
+                            Vec3f midP = {(pA.x + pB.x) * 0.5f, (pA.y + pB.y) * 0.5f, (pA.z + pB.z) * 0.5f};
 
-                // Meridian ring 1 (YZ plane)
-                std::vector<Vec3f> ringYZ; ringYZ.reserve(segments + 1);
-                for (int i = 0; i <= segments; i++) {
-                    float th = (float)i * 6.2831853f / (float)segments;
-                    ringYZ.push_back({0.0f, r * std::cos(th), r * std::sin(th)});
-                }
-                draw3DPolyline(ringYZ);
+                            float cosX = std::cos(shape.rot3DX), sinX = std::sin(shape.rot3DX);
+                            float z1 = midP.y * sinX + midP.z * cosX;
+                            float x1 = midP.x;
 
-                // Meridian ring 2 (XY plane)
-                std::vector<Vec3f> ringXY; ringXY.reserve(segments + 1);
-                for (int i = 0; i <= segments; i++) {
-                    float th = (float)i * 6.2831853f / (float)segments;
-                    ringXY.push_back({r * std::cos(th), r * std::sin(th), 0.0f});
-                }
-                draw3DPolyline(ringXY);
+                            float cosY = std::cos(shape.rot3DY), sinY = std::sin(shape.rot3DY);
+                            float z2 = -x1 * sinY + z1 * cosY;
 
-                // Outer silhouette circle
-                float rx = w * 0.5f;
-                float ry = h * 0.5f;
-                std::vector<Vec2f> contourPts; contourPts.reserve(segments + 1);
-                for (int i = 0; i <= segments; i++) {
-                    float th = (float)i * 6.2831853f / (float)segments;
-                    contourPts.push_back({midX + rx * std::cos(th), midY + ry * std::sin(th)});
+                            if (z2 <= 0.05f) {
+                                Stroke s;
+                                s.style = style;
+                                s.isSelected = shape.isSelected;
+                                Vec2f p2dA = project3D(pA.x, pA.y, pA.z);
+                                Vec2f p2dB = project3D(pB.x, pB.y, pB.z);
+                                s.points.push_back({p2dA.x, p2dA.y, 1.0f});
+                                s.points.push_back({p2dB.x, p2dB.y, 1.0f});
+                                s.updateBounds();
+                                drawStroke(s, camera);
+                            }
+                        }
+                    };
+
+                    for (int lat = 2; lat < latBands; lat += 2) {
+                        std::vector<Vec3f> latRing;
+                        latRing.reserve(lonBands + 1);
+                        for (int lon = 0; lon <= lonBands; lon++) {
+                            latRing.push_back(grid[lat][lon]);
+                        }
+                        draw3DFrontPolyline(latRing);
+                    }
+
+                    for (int lon = 0; lon < lonBands; lon += 4) {
+                        std::vector<Vec3f> meridian;
+                        meridian.reserve(latBands + 1);
+                        for (int lat = 0; lat <= latBands; lat++) {
+                            meridian.push_back(grid[lat][lon]);
+                        }
+                        draw3DFrontPolyline(meridian);
+                    }
+                }
+
+                // Outer silhouette circle matching sphere radius
+                float rx = w * 0.5f * r;
+                float ry = h * 0.5f * r;
+                int silSegments = 48;
+                std::vector<Vec2f> contourPts; contourPts.reserve(silSegments + 1);
+                for (int i = 0; i <= silSegments; i++) {
+                    float th = (float)i * 6.2831853f / (float)silSegments;
+                    contourPts.push_back(rotPt({midX + rx * std::cos(th), midY + ry * std::sin(th)}));
                 }
                 drawPolyline(contourPts);
             }
@@ -1089,12 +1182,14 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
                     glDisableVertexAttribArray(m_color_posLoc);
                 }
 
-                draw3DPolyline(topRing);
-                draw3DPolyline(botRing);
-                draw3DLine({-r, -hy, 0.0f}, {-r, hy, 0.0f});
-                draw3DLine({ r, -hy, 0.0f}, { r, hy, 0.0f});
-                draw3DLine({0.0f, -hy, -r}, {0.0f, hy, -r});
-                draw3DLine({0.0f, -hy,  r}, {0.0f, hy,  r});
+                if (shape.fillColor.a == 0) {
+                    draw3DPolyline(topRing);
+                    draw3DPolyline(botRing);
+                    draw3DLine({-r, -hy, 0.0f}, {-r, hy, 0.0f});
+                    draw3DLine({ r, -hy, 0.0f}, { r, hy, 0.0f});
+                    draw3DLine({0.0f, -hy, -r}, {0.0f, hy, -r});
+                    draw3DLine({0.0f, -hy,  r}, {0.0f, hy,  r});
+                }
             }
             else if (type == ShapeType::CONE) {
                 float r = 0.75f;
@@ -1168,11 +1263,13 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
                     glDisableVertexAttribArray(m_color_posLoc);
                 }
 
-                draw3DPolyline(baseRing);
-                draw3DLine(apex, {-r, hy, 0.0f});
-                draw3DLine(apex, { r, hy, 0.0f});
-                draw3DLine(apex, {0.0f, hy, -r});
-                draw3DLine(apex, {0.0f, hy,  r});
+                if (shape.fillColor.a == 0) {
+                    draw3DPolyline(baseRing);
+                    draw3DLine(apex, {-r, hy, 0.0f});
+                    draw3DLine(apex, { r, hy, 0.0f});
+                    draw3DLine(apex, {0.0f, hy, -r});
+                    draw3DLine(apex, {0.0f, hy,  r});
+                }
             }
             else if (type == ShapeType::FRUSTUM) {
                 float rTop = 0.45f, rBot = 0.75f;
@@ -1248,12 +1345,14 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
                     glDisableVertexAttribArray(m_color_posLoc);
                 }
 
-                draw3DPolyline(topRing);
-                draw3DPolyline(botRing);
-                draw3DLine({-rTop, -hy, 0.0f}, {-rBot, hy, 0.0f});
-                draw3DLine({ rTop, -hy, 0.0f}, { rBot, hy, 0.0f});
-                draw3DLine({0.0f, -hy, -rTop}, {0.0f, hy, -rBot});
-                draw3DLine({0.0f, -hy,  rTop}, {0.0f, hy,  rBot});
+                if (shape.fillColor.a == 0) {
+                    draw3DPolyline(topRing);
+                    draw3DPolyline(botRing);
+                    draw3DLine({-rTop, -hy, 0.0f}, {-rBot, hy, 0.0f});
+                    draw3DLine({ rTop, -hy, 0.0f}, { rBot, hy, 0.0f});
+                    draw3DLine({0.0f, -hy, -rTop}, {0.0f, hy, -rBot});
+                    draw3DLine({0.0f, -hy,  rTop}, {0.0f, hy,  rBot});
+                }
             }
             else if (type == ShapeType::PYRAMID) {
                 float hy = 0.7f;
@@ -1320,11 +1419,13 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
                     glDisableVertexAttribArray(m_color_posLoc);
                 }
 
-                draw3DPolyline({b0, b1, b2, b3, b0});
-                draw3DLine(apex, b0);
-                draw3DLine(apex, b1);
-                draw3DLine(apex, b2);
-                draw3DLine(apex, b3);
+                if (shape.fillColor.a == 0) {
+                    draw3DPolyline({b0, b1, b2, b3, b0});
+                    draw3DLine(apex, b0);
+                    draw3DLine(apex, b1);
+                    draw3DLine(apex, b2);
+                    draw3DLine(apex, b3);
+                }
             }
             else if (type == ShapeType::PRISM) {
                 float r  = 0.75f;
@@ -1400,11 +1501,13 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
                     glDisableVertexAttribArray(m_color_posLoc);
                 }
 
-                draw3DPolyline({t0, t1, t2, t0});
-                draw3DPolyline({b0, b1, b2, b0});
-                draw3DLine(t0, b0);
-                draw3DLine(t1, b1);
-                draw3DLine(t2, b2);
+                if (shape.fillColor.a == 0) {
+                    draw3DPolyline({t0, t1, t2, t0});
+                    draw3DPolyline({b0, b1, b2, b0});
+                    draw3DLine(t0, b0);
+                    draw3DLine(t1, b1);
+                    draw3DLine(t2, b2);
+                }
             }
             break;
         }
