@@ -46,7 +46,7 @@ public:
     bool     isReady()            const override { return m_initialized; }
 
     void renderLasso(const std::vector<Vec2f>& lassoPath, const CanvasCamera& camera);
-    void renderSelectionBoundingBox(const Rectf& bounds, float rotation, const CanvasCamera& camera);
+    void renderSelectionBoundingBox(const Rectf& bounds, float rotation, bool is3D, const CanvasCamera& camera);
     void renderEraserCircle(Vec2f screenPt, float screenRadius);
     void renderShape(const ShapeElement& shape, const CanvasCamera& camera);
 

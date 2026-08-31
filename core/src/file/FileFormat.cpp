@@ -90,9 +90,9 @@ ObnSaveResult obnSave(const Document& doc, const std::string& path) {
     int64_t nowMs = std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::system_clock::now().time_since_epoch()).count();
 
-    // ── File header (Version 4) ──────────────────────────────────────────
+    // ── File header (Version 5) ──────────────────────────────────────────
     fwrite("OBN1", 1, 4, f);                                // magic
-    writeU32(f, 4);                                         // version 4 (lossless float stroke coordinates, slide bg path, shapes, images)
+    writeU32(f, 5);                                         // version 5 (lossless float coordinates, 3D rotation angles rot3DX, rot3DY, rot3DZ)
     writeU32(f, (uint32_t)doc.pages.size());                // page count
     writeI64(f, doc.meta.createdAt ? doc.meta.createdAt : nowMs);
     writeI64(f, nowMs);                                     // last modified
@@ -183,6 +183,9 @@ ObnSaveResult obnSave(const Document& doc, const std::string& path) {
             writeF32(f, sh.rotation);
             writeU8 (f, sh.flipH ? 1 : 0);
             writeU8 (f, sh.flipV ? 1 : 0);
+            writeF32(f, sh.rot3DX);
+            writeF32(f, sh.rot3DY);
+            writeF32(f, sh.rot3DZ);
         }
 
         // ── Images ───────────────────────────────────────────────────────
@@ -389,6 +392,11 @@ ObnLoadResult obnLoad(Document& doc, const std::string& path) {
                     readU8 (f, flipV8);
                     sh.flipH = (flipH8 != 0);
                     sh.flipV = (flipV8 != 0);
+                }
+                if (version >= 5) {
+                    readF32(f, sh.rot3DX);
+                    readF32(f, sh.rot3DY);
+                    readF32(f, sh.rot3DZ);
                 }
 
                 page.shapes.push_back(sh);

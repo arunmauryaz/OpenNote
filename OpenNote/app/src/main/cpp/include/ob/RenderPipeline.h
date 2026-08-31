@@ -80,6 +80,7 @@ private:
     void renderBackground(const Page& page, const CanvasCamera& camera);
 
     void drawStrokeGeometry(const Stroke& s, const CanvasCamera& camera);
+    void renderSelectionBoundingBox(const Rectf& bounds, float rotation, bool is3D, const CanvasCamera& camera);
 };
 
 } // namespace ob

@@ -1232,6 +1232,13 @@ SelectionHandle SelectionTool::hitTestHandle(Vec2f pt) const {
     float lx = dx * cosA - dy * sinA;
     float ly = dx * sinA + dy * cosA;
 
+    // 0. 3D Rotation Trackball Gizmo: Center hit (within 56px) if 3D shape is selected
+    if (is3DSelection()) {
+        if (lx*lx + ly*ly <= 56.0f * 56.0f) {
+            return SelectionHandle::ROTATE_3D_GIMBAL;
+        }
+    }
+
     // 1. Rotation handle: 35px directly above Top-Center (lx = 0, ly = -hh - 35)
     float rotDx = lx - 0.0f;
     float rotDy = ly - (-hh - 35.0f);
@@ -1397,6 +1404,35 @@ void SelectionTool::rotateSelected(float deltaAngle) {
 
     m_selectionBounds = m_initialSelectionBounds;
     notifySelectionChanged();
+}
+
+bool SelectionTool::is3DSelection() const {
+    Page* page = m_engine->document().activePage_ptr();
+    if (!page || !m_hasSelection) return false;
+    for (const auto& shape : page->shapes) {
+        if (shape.isSelected && !shape.isErased && is3DShape(shape.shapeType)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void SelectionTool::rotate3DSelected(float deltaPitch, float deltaYaw) {
+    if (!m_hasSelection || isLocked()) return;
+    Page* page = m_engine->document().activePage_ptr();
+    if (!page) return;
+
+    for (const auto& [id, origShape] : m_initialShapes) {
+        for (auto& sh : page->shapes) {
+            if (sh.id == id && !sh.isLocked && !sh.isErased && is3DShape(sh.shapeType)) {
+                sh.rot3DX = std::fmod(origShape.rot3DX + deltaPitch, 6.28318530718f);
+                sh.rot3DY = std::fmod(origShape.rot3DY + deltaYaw, 6.28318530718f);
+                break;
+            }
+        }
+    }
+    m_engine->invalidate(DIRTY_SHAPES);
+    if (m_engine->callbacks().onInvalidate) m_engine->callbacks().onInvalidate();
 }
 
 void SelectionTool::flipHorizontalSelected() {
@@ -1969,6 +2005,13 @@ void SelectionTool::onMoved(Vec2f pt, float /*p*/) {
             float dy = pt.y - m_lastDragPt.y;
             m_lastDragPt = pt;
             translateSelected(dx, dy);
+        } else if (m_activeHandle == SelectionHandle::ROTATE_3D_GIMBAL) {
+            float dx = pt.x - m_initialTouchPt.x;
+            float dy = pt.y - m_initialTouchPt.y;
+            float deltaYaw   = dx * 0.015f;
+            float deltaPitch = -dy * 0.015f;
+            rotate3DSelected(deltaPitch, deltaYaw);
+            m_lastDragPt = pt;
         } else if (m_activeHandle == SelectionHandle::ROTATE) {
             Vec2f center = {
                 (m_initialSelectionBounds.left + m_initialSelectionBounds.right) * 0.5f,
@@ -2012,7 +2055,7 @@ void SelectionTool::onEnded(Vec2f pt) {
             if (!changed) {
                 for (const auto& sh : page->shapes) {
                     auto it = m_initialShapes.find(sh.id);
-                    if (it != m_initialShapes.end() && (sh.bounds.left != it->second.bounds.left || sh.bounds.top != it->second.bounds.top || sh.rotation != it->second.rotation)) {
+                    if (it != m_initialShapes.end() && (sh.bounds.left != it->second.bounds.left || sh.bounds.top != it->second.bounds.top || sh.rotation != it->second.rotation || sh.rot3DX != it->second.rot3DX || sh.rot3DY != it->second.rot3DY || sh.rot3DZ != it->second.rot3DZ)) {
                         changed = true;
                         break;
                     }
@@ -2170,6 +2213,11 @@ void ShapeTool::onEnded(Vec2f pt) {
     m_liveShape.strokeColor = m_strokeColor;
     m_liveShape.fillColor = m_fillColor;
     m_liveShape.strokeWidth = m_strokeWidth;
+    if (is3DShape(m_liveShape.shapeType)) {
+        m_liveShape.rot3DX = 0.45f;
+        m_liveShape.rot3DY = 0.55f;
+        m_liveShape.rot3DZ = 0.0f;
+    }
 
     Page* page = m_engine->document().activePage_ptr();
     if (page) {

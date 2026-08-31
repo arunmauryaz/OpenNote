@@ -63,6 +63,10 @@ enum class ShapeType : int32_t {
     PRISM          = 107
 };
 
+inline bool is3DShape(int32_t type) {
+    return type >= 100 && type <= 199;
+}
+
 struct StrokePoint {
     float x        = 0.0f;
     float y        = 0.0f;
@@ -208,6 +212,9 @@ struct ShapeElement : public CanvasObject {
     float     strokeWidth = 3.0f;
     int32_t   shapeType   = 2; // Default to RECTANGLE
     float     rotation    = 0.0f;
+    float     rot3DX      = 0.45f; // 3D Pitch (tilt forward/back)
+    float     rot3DY      = 0.55f; // 3D Yaw (spin left/right)
+    float     rot3DZ      = 0.0f;  // 3D Roll
     bool      flipH       = false;
     bool      flipV       = false;
     bool      isErased    = false;

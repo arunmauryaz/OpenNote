@@ -110,6 +110,7 @@ enum class SelectionHandle {
     BOTTOM_LEFT,
     MIDDLE_LEFT,
     ROTATE,
+    ROTATE_3D_GIMBAL,
     BODY
 };
 
@@ -130,6 +131,8 @@ public:
     void translateSelected(float dx, float dy);
     void scaleSelected(SelectionHandle handle, Vec2f pt);
     void rotateSelected(float deltaAngleRad);
+    void rotate3DSelected(float deltaPitch, float deltaYaw);
+    bool is3DSelection() const;
     void flipHorizontalSelected();
     void flipVerticalSelected();
     void bringToFrontSelected();

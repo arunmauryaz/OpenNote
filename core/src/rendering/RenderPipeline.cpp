@@ -267,7 +267,14 @@ void GlesRenderPipeline::renderFrame(const Document& doc, const CanvasCamera& ca
 
         // Selection overlay rendered LAST so it sits on top of all canvas objects
         if (m_selectionBounds) {
-            renderSelectionBoundingBox(*m_selectionBounds, m_selectionRotation, camera);
+            bool has3DSelected = false;
+            for (const auto& sh : page->shapes) {
+                if (sh.isSelected && !sh.isErased && is3DShape(sh.shapeType)) {
+                    has3DSelected = true;
+                    break;
+                }
+            }
+            renderSelectionBoundingBox(*m_selectionBounds, m_selectionRotation, has3DSelected, camera);
         }
     }
 
@@ -655,7 +662,7 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
         drawStroke(s, camera);
     };
 
-    auto drawLine = [&](Vec2f p1, Vec2f p2) {
+    [[maybe_unused]] auto drawLine = [&](Vec2f p1, Vec2f p2) {
         drawPolyline({p1, p2});
     };
 
@@ -743,195 +750,237 @@ void GlesRenderPipeline::renderShape(const ShapeElement& shape, const CanvasCame
             break;
         }
 
-        // ── 3D SHAPES ─────────────────────────────────────────────────────────
+        // ── 3D SHAPES (Full Real-Time 3D Multi-Axis Vector Engine) ───────────
 
         case ShapeType::CUBE:
-        case ShapeType::CUBOID: {
-            float offX = w * 0.28f;
-            float offY = h * 0.25f;
-
-            // Front face corners
-            Vec2f fTL{l, t + offY};
-            Vec2f fTR{r - offX, t + offY};
-            Vec2f fBR{r - offX, bot};
-            Vec2f fBL{l, bot};
-
-            // Back face corners
-            Vec2f bTL{l + offX, t};
-            Vec2f bTR{r, t};
-            Vec2f bBR{r, bot - offY};
-            Vec2f bBL{l + offX, bot - offY};
-
-            // Front face
-            drawPolyline({fTL, fTR, fBR, fBL, fTL});
-            // Top & right connecting faces
-            drawPolyline({fTL, bTL, bTR, fTR});
-            drawPolyline({bTR, bBR, fBR});
-            // Back edges (wireframe)
-            drawPolyline({fBL, bBL, bBR});
-            drawPolyline({bTL, bBL});
-            break;
-        }
-
-        case ShapeType::SPHERE: {
-            float rx = w * 0.5f;
-            float ry = h * 0.5f;
-            int segments = 64;
-
-            // Outer contour circle
-            std::vector<Vec2f> contourPts;
-            contourPts.reserve(segments + 1);
-            for (int i = 0; i <= segments; i++) {
-                float theta = (float)i * 6.2831853f / (float)segments;
-                contourPts.push_back({midX + rx * std::cos(theta), midY + ry * std::sin(theta)});
-            }
-            drawPolyline(contourPts);
-
-            // Equator ellipse
-            std::vector<Vec2f> equatorPts;
-            equatorPts.reserve(segments + 1);
-            for (int i = 0; i <= segments; i++) {
-                float theta = (float)i * 6.2831853f / (float)segments;
-                equatorPts.push_back({midX + rx * std::cos(theta), midY + ry * 0.35f * std::sin(theta)});
-            }
-            drawPolyline(equatorPts);
-
-            // Central meridian ellipse
-            std::vector<Vec2f> meridianPts;
-            meridianPts.reserve(segments + 1);
-            for (int i = 0; i <= segments; i++) {
-                float theta = (float)i * 6.2831853f / (float)segments;
-                meridianPts.push_back({midX + rx * 0.35f * std::sin(theta), midY + ry * std::cos(theta)});
-            }
-            drawPolyline(meridianPts);
-            break;
-        }
-
-        case ShapeType::CYLINDER: {
-            float rx = w * 0.5f;
-            float capRy = std::min(h * 0.18f, rx * 0.5f);
-            float topY = t + capRy;
-            float botY = bot - capRy;
-            int segments = 48;
-
-            // Top ellipse
-            std::vector<Vec2f> topEllipse;
-            topEllipse.reserve(segments + 1);
-            for (int i = 0; i <= segments; i++) {
-                float theta = (float)i * 6.2831853f / (float)segments;
-                topEllipse.push_back({midX + rx * std::cos(theta), topY + capRy * std::sin(theta)});
-            }
-            drawPolyline(topEllipse);
-
-            // Bottom ellipse
-            std::vector<Vec2f> botEllipse;
-            botEllipse.reserve(segments + 1);
-            for (int i = 0; i <= segments; i++) {
-                float theta = (float)i * 6.2831853f / (float)segments;
-                botEllipse.push_back({midX + rx * std::cos(theta), botY + capRy * std::sin(theta)});
-            }
-            drawPolyline(botEllipse);
-
-            // Side vertical silhouette lines
-            drawLine({l, topY}, {l, botY});
-            drawLine({r, topY}, {r, botY});
-            break;
-        }
-
-        case ShapeType::CONE: {
-            float rx = w * 0.5f;
-            float capRy = std::min(h * 0.18f, rx * 0.5f);
-            float botY = bot - capRy;
-            Vec2f apex{midX, t};
-
-            // Bottom base ellipse
-            int segments = 48;
-            std::vector<Vec2f> baseEllipse;
-            baseEllipse.reserve(segments + 1);
-            for (int i = 0; i <= segments; i++) {
-                float theta = (float)i * 6.2831853f / (float)segments;
-                baseEllipse.push_back({midX + rx * std::cos(theta), botY + capRy * std::sin(theta)});
-            }
-            drawPolyline(baseEllipse);
-
-            // Apex to left and right silhouette lines
-            drawLine(apex, {l, botY});
-            drawLine(apex, {r, botY});
-            break;
-        }
-
-        case ShapeType::FRUSTUM: {
-            float topRx = w * 0.32f;
-            float topRy = std::min(h * 0.12f, topRx * 0.5f);
-            float topY = t + topRy;
-
-            float botRx = w * 0.5f;
-            float botRy = std::min(h * 0.18f, botRx * 0.5f);
-            float botY = bot - botRy;
-
-            int segments = 48;
-
-            // Top ellipse
-            std::vector<Vec2f> topEllipse;
-            topEllipse.reserve(segments + 1);
-            for (int i = 0; i <= segments; i++) {
-                float theta = (float)i * 6.2831853f / (float)segments;
-                topEllipse.push_back({midX + topRx * std::cos(theta), topY + topRy * std::sin(theta)});
-            }
-            drawPolyline(topEllipse);
-
-            // Bottom ellipse
-            std::vector<Vec2f> botEllipse;
-            botEllipse.reserve(segments + 1);
-            for (int i = 0; i <= segments; i++) {
-                float theta = (float)i * 6.2831853f / (float)segments;
-                botEllipse.push_back({midX + botRx * std::cos(theta), botY + botRy * std::sin(theta)});
-            }
-            drawPolyline(botEllipse);
-
-            // 2 Silhouette lines
-            drawLine({midX - topRx, topY}, {l, botY});
-            drawLine({midX + topRx, topY}, {r, botY});
-            break;
-        }
-
-        case ShapeType::PYRAMID: {
-            Vec2f apex{midX, t};
-            Vec2f bFL{l, bot - h * 0.15f};
-            Vec2f bFR{r - w * 0.18f, bot};
-            Vec2f bBR{r, bot - h * 0.25f};
-            Vec2f bBL{l + w * 0.18f, bot - h * 0.35f};
-
-            // Base perimeter
-            drawPolyline({bFL, bFR, bBR, bBL, bFL});
-
-            // 4 Corner edges to apex
-            drawLine(apex, bFL);
-            drawLine(apex, bFR);
-            drawLine(apex, bBR);
-            drawLine(apex, bBL);
-            break;
-        }
-
+        case ShapeType::CUBOID:
+        case ShapeType::SPHERE:
+        case ShapeType::CYLINDER:
+        case ShapeType::CONE:
+        case ShapeType::FRUSTUM:
+        case ShapeType::PYRAMID:
         case ShapeType::PRISM: {
-            float offX = w * 0.3f;
-            float offY = h * 0.25f;
+            struct Vec3f { float x, y, z; };
 
-            Vec2f fTop{l + (w - offX) * 0.5f, t + offY};
-            Vec2f fBL{l, bot};
-            Vec2f fBR{r - offX, bot};
+            auto project3D = [&](float x, float y, float z) -> Vec2f {
+                // 1. Rotation around X axis (Pitch)
+                float cosX = std::cos(shape.rot3DX), sinX = std::sin(shape.rot3DX);
+                float y1 = y * cosX - z * sinX;
+                float z1 = y * sinX + z * cosX;
+                float x1 = x;
 
-            Vec2f bTop{fTop.x + offX, t};
-            Vec2f bBL{fBL.x + offX, bot - offY};
-            Vec2f bBR{fBR.x + offX, bot - offY};
+                // 2. Rotation around Y axis (Yaw)
+                float cosY = std::cos(shape.rot3DY), sinY = std::sin(shape.rot3DY);
+                float x2 = x1 * cosY + z1 * sinY;
+                float z2 = -x1 * sinY + z1 * cosY;
+                float y2 = y1;
 
-            // Front triangle
-            drawPolyline({fTop, fBR, fBL, fTop});
-            // Top and right connecting ridges
-            drawPolyline({fTop, bTop, bBR, fBR});
-            // Bottom and back lines
-            drawPolyline({fBL, bBL, bBR});
-            drawPolyline({bTop, bBL});
+                // 3. Rotation around Z axis (Roll)
+                float cosZ = std::cos(shape.rot3DZ), sinZ = std::sin(shape.rot3DZ);
+                float x3 = x2 * cosZ - y2 * sinZ;
+                float y3 = x2 * sinZ + y2 * cosZ;
+                float z3 = z2;
+
+                // 4. Perspective depth foreshortening
+                float focal = 3.5f;
+                float pScale = focal / (focal + z3 * 0.7f);
+
+                float hw = w * 0.5f;
+                float hh = h * 0.5f;
+
+                Vec2f canvasUnrot = {
+                    midX + x3 * hw * pScale,
+                    midY + y3 * hh * pScale
+                };
+                return rotPt(canvasUnrot);
+            };
+
+            auto draw3DPolyline = [&](const std::vector<Vec3f>& pts3D) {
+                if (pts3D.size() < 2) return;
+                Stroke s;
+                s.style = style;
+                s.isSelected = shape.isSelected;
+                s.points.reserve(pts3D.size());
+                for (const auto& p : pts3D) {
+                    Vec2f p2d = project3D(p.x, p.y, p.z);
+                    s.points.push_back({p2d.x, p2d.y, 1.0f});
+                }
+                s.updateBounds();
+                drawStroke(s, camera);
+            };
+
+            auto draw3DLine = [&](Vec3f p1, Vec3f p2) {
+                draw3DPolyline({p1, p2});
+            };
+
+            if (type == ShapeType::CUBE || type == ShapeType::CUBOID) {
+                float hx = (type == ShapeType::CUBE) ? 0.7f : 0.85f;
+                float hy = (type == ShapeType::CUBE) ? 0.7f : 0.60f;
+                float hz = (type == ShapeType::CUBE) ? 0.7f : 0.70f;
+
+                Vec3f v0{-hx, -hy, -hz}, v1{ hx, -hy, -hz}, v2{ hx,  hy, -hz}, v3{-hx,  hy, -hz};
+                Vec3f v4{-hx, -hy,  hz}, v5{ hx, -hy,  hz}, v6{ hx,  hy,  hz}, v7{-hx,  hy,  hz};
+
+                // Front face & Back face
+                draw3DPolyline({v4, v5, v6, v7, v4});
+                draw3DPolyline({v0, v1, v2, v3, v0});
+                // 4 Connecting edges
+                draw3DLine(v0, v4);
+                draw3DLine(v1, v5);
+                draw3DLine(v2, v6);
+                draw3DLine(v3, v7);
+            }
+            else if (type == ShapeType::SPHERE) {
+                float r = 0.75f;
+                int segments = 48;
+                // Latitude ring (XZ plane)
+                std::vector<Vec3f> ringXZ; ringXZ.reserve(segments + 1);
+                for (int i = 0; i <= segments; i++) {
+                    float th = (float)i * 6.2831853f / (float)segments;
+                    ringXZ.push_back({r * std::cos(th), 0.0f, r * std::sin(th)});
+                }
+                draw3DPolyline(ringXZ);
+
+                // Meridian ring 1 (YZ plane)
+                std::vector<Vec3f> ringYZ; ringYZ.reserve(segments + 1);
+                for (int i = 0; i <= segments; i++) {
+                    float th = (float)i * 6.2831853f / (float)segments;
+                    ringYZ.push_back({0.0f, r * std::cos(th), r * std::sin(th)});
+                }
+                draw3DPolyline(ringYZ);
+
+                // Meridian ring 2 (XY plane)
+                std::vector<Vec3f> ringXY; ringXY.reserve(segments + 1);
+                for (int i = 0; i <= segments; i++) {
+                    float th = (float)i * 6.2831853f / (float)segments;
+                    ringXY.push_back({r * std::cos(th), r * std::sin(th), 0.0f});
+                }
+                draw3DPolyline(ringXY);
+
+                // Outer silhouette circle
+                float rx = w * 0.5f;
+                float ry = h * 0.5f;
+                std::vector<Vec2f> contourPts; contourPts.reserve(segments + 1);
+                for (int i = 0; i <= segments; i++) {
+                    float th = (float)i * 6.2831853f / (float)segments;
+                    contourPts.push_back({midX + rx * std::cos(th), midY + ry * std::sin(th)});
+                }
+                drawPolyline(contourPts);
+            }
+            else if (type == ShapeType::CYLINDER) {
+                float r = 0.7f;
+                float hy = 0.7f;
+                int segments = 40;
+
+                // Top 3D circular cap
+                std::vector<Vec3f> topRing; topRing.reserve(segments + 1);
+                for (int i = 0; i <= segments; i++) {
+                    float th = (float)i * 6.2831853f / (float)segments;
+                    topRing.push_back({r * std::cos(th), -hy, r * std::sin(th)});
+                }
+                draw3DPolyline(topRing);
+
+                // Bottom 3D circular cap
+                std::vector<Vec3f> botRing; botRing.reserve(segments + 1);
+                for (int i = 0; i <= segments; i++) {
+                    float th = (float)i * 6.2831853f / (float)segments;
+                    botRing.push_back({r * std::cos(th), hy, r * std::sin(th)});
+                }
+                draw3DPolyline(botRing);
+
+                // 4 vertical connecting generator lines
+                draw3DLine({-r, -hy, 0.0f}, {-r, hy, 0.0f});
+                draw3DLine({ r, -hy, 0.0f}, { r, hy, 0.0f});
+                draw3DLine({0.0f, -hy, -r}, {0.0f, hy, -r});
+                draw3DLine({0.0f, -hy,  r}, {0.0f, hy,  r});
+            }
+            else if (type == ShapeType::CONE) {
+                float r = 0.75f;
+                float hy = 0.7f;
+                Vec3f apex{0.0f, -hy, 0.0f};
+                int segments = 40;
+
+                // Base 3D circle
+                std::vector<Vec3f> baseRing; baseRing.reserve(segments + 1);
+                for (int i = 0; i <= segments; i++) {
+                    float th = (float)i * 6.2831853f / (float)segments;
+                    baseRing.push_back({r * std::cos(th), hy, r * std::sin(th)});
+                }
+                draw3DPolyline(baseRing);
+
+                // 4 side generator lines from apex to base
+                draw3DLine(apex, {-r, hy, 0.0f});
+                draw3DLine(apex, { r, hy, 0.0f});
+                draw3DLine(apex, {0.0f, hy, -r});
+                draw3DLine(apex, {0.0f, hy,  r});
+            }
+            else if (type == ShapeType::FRUSTUM) {
+                float rTop = 0.45f, rBot = 0.75f;
+                float hy = 0.65f;
+                int segments = 40;
+
+                // Top 3D circle
+                std::vector<Vec3f> topRing; topRing.reserve(segments + 1);
+                for (int i = 0; i <= segments; i++) {
+                    float th = (float)i * 6.2831853f / (float)segments;
+                    topRing.push_back({rTop * std::cos(th), -hy, rTop * std::sin(th)});
+                }
+                draw3DPolyline(topRing);
+
+                // Bottom 3D circle
+                std::vector<Vec3f> botRing; botRing.reserve(segments + 1);
+                for (int i = 0; i <= segments; i++) {
+                    float th = (float)i * 6.2831853f / (float)segments;
+                    botRing.push_back({rBot * std::cos(th), hy, rBot * std::sin(th)});
+                }
+                draw3DPolyline(botRing);
+
+                // 4 connecting side lines
+                draw3DLine({-rTop, -hy, 0.0f}, {-rBot, hy, 0.0f});
+                draw3DLine({ rTop, -hy, 0.0f}, { rBot, hy, 0.0f});
+                draw3DLine({0.0f, -hy, -rTop}, {0.0f, hy, -rBot});
+                draw3DLine({0.0f, -hy,  rTop}, {0.0f, hy,  rBot});
+            }
+            else if (type == ShapeType::PYRAMID) {
+                float hy = 0.7f;
+                float s  = 0.7f;
+                Vec3f apex{0.0f, -hy, 0.0f};
+                Vec3f b0{-s, hy, -s}, b1{ s, hy, -s}, b2{ s, hy,  s}, b3{-s, hy,  s};
+
+                // Base perimeter
+                draw3DPolyline({b0, b1, b2, b3, b0});
+
+                // 4 corner edges to apex
+                draw3DLine(apex, b0);
+                draw3DLine(apex, b1);
+                draw3DLine(apex, b2);
+                draw3DLine(apex, b3);
+            }
+            else if (type == ShapeType::PRISM) {
+                float r  = 0.75f;
+                float hy = 0.65f;
+                // 3 vertices at 90, 210, 330 deg
+                float th0 = 1.5707963f;
+                float th1 = 3.6651914f;
+                float th2 = 5.7595865f;
+
+                Vec3f t0{r * std::cos(th0), -hy, r * std::sin(th0)};
+                Vec3f t1{r * std::cos(th1), -hy, r * std::sin(th1)};
+                Vec3f t2{r * std::cos(th2), -hy, r * std::sin(th2)};
+
+                Vec3f b0{r * std::cos(th0),  hy, r * std::sin(th0)};
+                Vec3f b1{r * std::cos(th1),  hy, r * std::sin(th1)};
+                Vec3f b2{r * std::cos(th2),  hy, r * std::sin(th2)};
+
+                // Top & bottom triangles
+                draw3DPolyline({t0, t1, t2, t0});
+                draw3DPolyline({b0, b1, b2, b0});
+
+                // 3 vertical connecting edges
+                draw3DLine(t0, b0);
+                draw3DLine(t1, b1);
+                draw3DLine(t2, b2);
+            }
             break;
         }
     }
@@ -991,7 +1040,7 @@ void GlesRenderPipeline::renderLasso(const std::vector<Vec2f>& lassoPath, const 
     }
 }
 
-void GlesRenderPipeline::renderSelectionBoundingBox(const Rectf& bounds, float rotation, const CanvasCamera& camera) {
+void GlesRenderPipeline::renderSelectionBoundingBox(const Rectf& bounds, float rotation, bool is3D, const CanvasCamera& camera) {
     if (m_colorProgram == 0) return;
 
     float midCanvasX = (bounds.left + bounds.right) * 0.5f;
@@ -1130,6 +1179,82 @@ void GlesRenderPipeline::renderSelectionBoundingBox(const Rectf& bounds, float r
     glBufferData(GL_ARRAY_BUFFER, sizeof(rotInner), rotInner, GL_DYNAMIC_DRAW);
     glVertexAttribPointer(posLoc, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+    // 4. 3D Rotation Gimbal Trackball Widget (Blender-style Orbit Controller)
+    if (is3D) {
+        float gimbalR = 26.0f;
+        const int gSegs = 32;
+
+        // A. Translucent Disc Background (#3B82F6, alpha = 0.15)
+        std::vector<float> discVerts;
+        discVerts.reserve((gSegs + 2) * 2);
+        discVerts.push_back(midScreen.x);
+        discVerts.push_back(midScreen.y);
+        for (int i = 0; i <= gSegs; i++) {
+            float theta = (float)i * 6.2831853f / (float)gSegs;
+            discVerts.push_back(midScreen.x + gimbalR * std::cos(theta));
+            discVerts.push_back(midScreen.y + gimbalR * std::sin(theta));
+        }
+        glUniform4f(colorLoc, 0.23f, 0.51f, 0.96f, 0.18f);
+        glBufferData(GL_ARRAY_BUFFER, discVerts.size() * sizeof(float), discVerts.data(), GL_DYNAMIC_DRAW);
+        glVertexAttribPointer(posLoc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, gSegs + 2);
+
+        // B. Outer Compass Orbit Ring (#3B82F6, alpha = 0.9)
+        std::vector<float> ringVerts;
+        ringVerts.reserve((gSegs + 1) * 2);
+        for (int i = 0; i <= gSegs; i++) {
+            float theta = (float)i * 6.2831853f / (float)gSegs;
+            ringVerts.push_back(midScreen.x + gimbalR * std::cos(theta));
+            ringVerts.push_back(midScreen.y + gimbalR * std::sin(theta));
+        }
+        glUniform4f(colorLoc, 0.23f, 0.51f, 0.96f, 0.95f);
+        glLineWidth(2.5f);
+        glBufferData(GL_ARRAY_BUFFER, ringVerts.size() * sizeof(float), ringVerts.data(), GL_DYNAMIC_DRAW);
+        glVertexAttribPointer(posLoc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        glDrawArrays(GL_LINE_STRIP, 0, gSegs + 1);
+
+        // C. 3D Axis Needles:
+        // X-axis (Red #EF4444)
+        glUniform4f(colorLoc, 0.94f, 0.27f, 0.27f, 1.0f);
+        float axisX[] = { midScreen.x, midScreen.y, midScreen.x + 18.0f, midScreen.y };
+        glBufferData(GL_ARRAY_BUFFER, sizeof(axisX), axisX, GL_DYNAMIC_DRAW);
+        glVertexAttribPointer(posLoc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        glLineWidth(2.2f);
+        glDrawArrays(GL_LINES, 0, 2);
+
+        // Y-axis (Green #10B981)
+        glUniform4f(colorLoc, 0.06f, 0.73f, 0.51f, 1.0f);
+        float axisY[] = { midScreen.x, midScreen.y, midScreen.x, midScreen.y - 18.0f };
+        glBufferData(GL_ARRAY_BUFFER, sizeof(axisY), axisY, GL_DYNAMIC_DRAW);
+        glVertexAttribPointer(posLoc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        glLineWidth(2.2f);
+        glDrawArrays(GL_LINES, 0, 2);
+
+        // Center Anchor Hub (White with Indigo outline)
+        glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
+        float hubR = 4.0f;
+        float hubQuad[] = {
+            midScreen.x - hubR, midScreen.y - hubR,
+            midScreen.x + hubR, midScreen.y - hubR,
+            midScreen.x - hubR, midScreen.y + hubR,
+            midScreen.x + hubR, midScreen.y + hubR
+        };
+        glBufferData(GL_ARRAY_BUFFER, sizeof(hubQuad), hubQuad, GL_DYNAMIC_DRAW);
+        glVertexAttribPointer(posLoc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+        glUniform4f(colorLoc, 0.23f, 0.51f, 0.96f, 1.0f);
+        float hubBorder[] = {
+            midScreen.x - hubR, midScreen.y - hubR,  midScreen.x + hubR, midScreen.y - hubR,
+            midScreen.x + hubR, midScreen.y - hubR,  midScreen.x + hubR, midScreen.y + hubR,
+            midScreen.x + hubR, midScreen.y + hubR,  midScreen.x - hubR, midScreen.y + hubR,
+            midScreen.x - hubR, midScreen.y + hubR,  midScreen.x - hubR, midScreen.y - hubR
+        };
+        glBufferData(GL_ARRAY_BUFFER, sizeof(hubBorder), hubBorder, GL_DYNAMIC_DRAW);
+        glVertexAttribPointer(posLoc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        glDrawArrays(GL_LINES, 0, 8);
+    }
 }
 
 void GlesRenderPipeline::renderEraserCircle(Vec2f screenPt, float screenRadius) {
