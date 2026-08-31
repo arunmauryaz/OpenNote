@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dock Dimensions (Default / Phones < 600dp) -->
+    <dimen name="dock_btn_size">28dp</dimen>
+    <dimen name="dock_btn_small_size">24dp</dimen>
+    <dimen name="dock_btn_padding">4dp</dimen>
+    <dimen name="dock_btn_small_padding">3dp</dimen>
+    <dimen name="dock_padding_horizontal">6dp</dimen>
+    <dimen name="dock_padding_vertical">4dp</dimen>
+    <dimen name="dock_margin_bottom">8dp</dimen>
+    <dimen name="dock_side_margin">6dp</dimen>
+    <dimen name="dock_spacing">2dp</dimen>
+    <dimen name="dock_indicator_text_size">10sp</dimen>
+    <dimen name="dock_indicator_padding_h">6dp</dimen>
+    <dimen name="dock_indicator_padding_v">2dp</dimen>
+
+    <!-- Flyout Dimensions -->
+    <dimen name="flyout_width">240dp</dimen>
+    <dimen name="flyout_margin_bottom">8dp</dimen>
+    <dimen name="flyout_shape_btn_size">30dp</dimen>
+    <dimen name="flyout_shape_btn_padding">4dp</dimen>
+
+    <!-- Settings Dialog Dimensions (Phone Proportions < 600dp) -->
+    <dimen name="dialog_settings_width">0dp</dimen>
+    <dimen name="dialog_settings_height">0dp</dimen>
+    <dimen name="dialog_settings_margin">8dp</dimen>
+    <dimen name="dialog_settings_sidebar_width">56dp</dimen>
+    <dimen name="dialog_settings_header_height">36dp</dimen>
+    <dimen name="dialog_settings_header_icon_size">18dp</dimen>
+    <dimen name="dialog_settings_header_title_size">13.5sp</dimen>
+    <dimen name="dialog_settings_header_close_size">28dp</dimen>
+    <dimen name="dialog_settings_header_sub_size">10sp</dimen>
+    <dimen name="dialog_settings_nav_height">34dp</dimen>
+    <dimen name="dialog_settings_nav_icon_size">16dp</dimen>
+    <dimen name="dialog_settings_nav_text_size">11sp</dimen>
+    <dimen name="dialog_settings_content_padding">10dp</dimen>
+    <dimen name="dialog_settings_title_size">13.5sp</dimen>
+    <dimen name="dialog_settings_sub_size">10sp</dimen>
+    <dimen name="dialog_settings_card_margin_top">8dp</dimen>
+    <dimen name="dialog_settings_card_padding">10dp</dimen>
+    <dimen name="dialog_settings_card_title_size">11.5sp</dimen>
+    <dimen name="dialog_settings_card_sub_size">9.5sp</dimen>
+    <dimen name="dialog_settings_segment_height">32dp</dimen>
+    <dimen name="dialog_settings_segment_text_size">10.5sp</dimen>
+    <dimen name="dialog_settings_footer_height">40dp</dimen>
+    <dimen name="dialog_settings_footer_padding">12dp</dimen>
+    <dimen name="dialog_settings_footer_btn_height">30dp</dimen>
+    <dimen name="dialog_settings_footer_btn_text_size">11sp</dimen>
+
+    <!-- File Manager Dialog Dimensions (Phone Proportions < 600dp) -->
+    <dimen name="dialog_file_manager_width">0dp</dimen>
+    <dimen name="dialog_file_manager_height">0dp</dimen>
+    <dimen name="dialog_file_manager_margin">8dp</dimen>
+    <dimen name="dialog_file_manager_sidebar_width">56dp</dimen>
+    <dimen name="dialog_fm_header_height">36dp</dimen>
+    <dimen name="dialog_fm_header_icon_size">18dp</dimen>
+    <dimen name="dialog_fm_header_title_size">13sp</dimen>
+    <dimen name="dialog_fm_header_close_size">28dp</dimen>
+    <dimen name="dialog_fm_sidebar_item_height">32dp</dimen>
+    <dimen name="dialog_fm_sidebar_icon_size">15dp</dimen>
+    <dimen name="dialog_fm_sidebar_text_size">11sp</dimen>
+    <dimen name="dialog_fm_storage_card_width">105dp</dimen>
+    <dimen name="dialog_fm_storage_card_height">36dp</dimen>
+    <dimen name="dialog_fm_storage_card_icon_size">16dp</dimen>
+    <dimen name="dialog_fm_storage_card_title_size">9.5sp</dimen>
+    <dimen name="dialog_fm_storage_card_sub_size">7.5sp</dimen>
+    <dimen name="dialog_fm_storage_padding">6dp</dimen>
+    <dimen name="dialog_fm_subheader_height">28dp</dimen>
+    <dimen name="dialog_fm_subheader_tool_size">22dp</dimen>
+    <dimen name="dialog_fm_section_label_size">9.5sp</dimen>
+    <dimen name="dialog_fm_card_height">76dp</dimen>
+    <dimen name="dialog_fm_card_margin">3dp</dimen>
+    <dimen name="dialog_fm_card_padding">5dp</dimen>
+    <dimen name="dialog_fm_thumb_height">38dp</dimen>
+    <dimen name="dialog_fm_card_title_size">10sp</dimen>
+    <dimen name="dialog_fm_card_sub_size">8.5sp</dimen>
+    <dimen name="dialog_fm_bottom_height">40dp</dimen>
+    <dimen name="dialog_fm_bottom_padding">6dp</dimen>
+    <dimen name="dialog_fm_path_size">9.5sp</dimen>
+    <dimen name="dialog_fm_action_btn_height">28dp</dimen>
+    <dimen name="dialog_fm_action_btn_text_size">11sp</dimen>
+    <dimen name="dialog_fm_action_btn_min_width">60dp</dimen>
+    <dimen name="dialog_fm_import_toggle_height">28dp</dimen>
+
+    <!-- Export & Custom Dialog Dimensions -->
+    <dimen name="dialog_export_choice_width">340dp</dimen>
+    <dimen name="dialog_custom_slide_width">340dp</dimen>
+    <dimen name="dialog_color_picker_width">300dp</dimen>
+    <dimen name="dialog_color_picker_canvas_width">200dp</dimen>
+    <dimen name="dialog_color_picker_canvas_height">180dp</dimen>
+
+    <!-- Selection Action Bar -->
+    <dimen name="selection_btn_size">28dp</dimen>
+    <dimen name="selection_btn_padding">4dp</dimen>
+
+    <!-- Minimap -->
+    <dimen name="minimap_width">120dp</dimen>
+    <dimen name="minimap_height">75dp</dimen>
+</resources>

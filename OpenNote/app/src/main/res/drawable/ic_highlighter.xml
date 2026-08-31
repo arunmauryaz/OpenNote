@@ -1,0 +1,26 @@
+﻿<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="28"
+    android:viewportHeight="28">
+
+    <!-- Highlighter Body (Neon Yellow / Amber) -->
+    <path
+        android:fillColor="#FACC15"
+        android:pathData="M11,7 L19,15 L14,20 L6,12 Z" />
+
+    <!-- Body Shadow / Facet -->
+    <path
+        android:fillColor="#EAB308"
+        android:pathData="M13,9 L19,15 L14,20 L8,14 Z" />
+
+    <!-- Cap Base / Grip Ring (Dark Slate) -->
+    <path
+        android:fillColor="#475569"
+        android:pathData="M9,5 L13,9 L8,14 L4,10 Z" />
+
+    <!-- Angled Chisel Tip (Fluorescent Lemon Green / Yellow) -->
+    <path
+        android:fillColor="#84CC16"
+        android:pathData="M4,10 L8,6 L5,3 L2,7 Z" />
+</vector>

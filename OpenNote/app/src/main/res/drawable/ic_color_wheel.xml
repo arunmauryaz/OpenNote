@@ -1,0 +1,47 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- 1. Top Hexagon (Vibrant Yellow) -->
+    <path
+        android:fillColor="#FFD600"
+        android:pathData="M12,1.2 L15.5,3.2 L15.5,7.2 L12,9.2 L8.5,7.2 L8.5,3.2 Z" />
+
+    <!-- 2. Top-Right Hexagon (Vibrant Lime/Green) -->
+    <path
+        android:fillColor="#34C759"
+        android:pathData="M18,4.7 L21.5,6.7 L21.5,10.7 L18,12.7 L14.5,10.7 L14.5,6.7 Z" />
+
+    <!-- 3. Bottom-Right Hexagon (Cyan/Electric Blue) -->
+    <path
+        android:fillColor="#00C7BE"
+        android:pathData="M18,11.3 L21.5,13.3 L21.5,17.3 L18,19.3 L14.5,17.3 L14.5,13.3 Z" />
+
+    <!-- 4. Bottom Hexagon (Deep Blue/Indigo) -->
+    <path
+        android:fillColor="#0040DD"
+        android:pathData="M12,14.8 L15.5,16.8 L15.5,20.8 L12,22.8 L8.5,20.8 L8.5,16.8 Z" />
+
+    <!-- 5. Bottom-Left Hexagon (Magenta/Purple) -->
+    <path
+        android:fillColor="#AF52DE"
+        android:pathData="M6,11.3 L9.5,13.3 L9.5,17.3 L6,19.3 L2.5,17.3 L2.5,13.3 Z" />
+
+    <!-- 6. Top-Left Hexagon (Vibrant Coral/Orange) -->
+    <path
+        android:fillColor="#FF3B30"
+        android:pathData="M6,4.7 L9.5,6.7 L9.5,10.7 L6,12.7 L2.5,10.7 L2.5,6.7 Z" />
+
+    <!-- 7. Center Hexagon (Core Graphite/Black) -->
+    <path
+        android:fillColor="#1C1C1E"
+        android:pathData="M12,8 L15.5,10 L15.5,14 L12,16 L8.5,14 L8.5,10 Z" />
+
+    <!-- Subtle White/Gold Center Dot Accent -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,11 A1,1 0 1,1 12,13 A1,1 0 1,1 12,11" />
+
+</vector>

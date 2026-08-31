@@ -1,0 +1,21 @@
+﻿<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="28"
+    android:viewportHeight="28">
+
+    <!-- Minimap / Canvas Folded Map (Indigo / Violet) -->
+    <path
+        android:fillColor="#6366F1"
+        android:pathData="M4,6 L10,3.5 L18,7.5 L24,4.5 L24,22 L18,25 L10,21 L4,23.5 Z" />
+
+    <!-- Map Fold Lines / Shading -->
+    <path
+        android:fillColor="#4F46E5"
+        android:pathData="M10,3.5 L18,7.5 L18,25 L10,21 Z" />
+
+    <!-- Viewport Rectangle on Map (Bright Coral / Orange) -->
+    <path
+        android:fillColor="#FF5722"
+        android:pathData="M12,11 L16,13 L16,17 L12,15 Z" />
+</vector>

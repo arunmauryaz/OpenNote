@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/pk/res/android"
+    android:id="@+id/storageCardRoot"
+    android:layout_width="130dp"
+    android:layout_height="80dp"
+    android:layout_marginEnd="12dp"
+    android:background="@drawable/bg_storage_card_unselected"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/ivStorageIcon"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:src="@drawable/ic_folder"
+        android:tint="#555555" />
+
+    <TextView
+        android:id="@+id/tvStorageName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Local Storage"
+        android:textColor="#222222"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvStorageFree"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="32 GB free"
+        android:textColor="#888888"
+        android:textSize="10sp" />
+</LinearLayout>

@@ -1,0 +1,59 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="28"
+    android:viewportHeight="28">
+
+    <!-- Subtle Eraser Dust / Friction Lines at bottom left -->
+    <path
+        android:strokeColor="#CBD5E1"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M2,21.5 C3.5,23.5 5.5,24.5 7.5,24" />
+    <path
+        android:strokeColor="#94A3B8"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:pathData="M1,25 C3,26 5,26.5 6,26" />
+
+    <!-- 1. Eraser Front-Right Face (Deep Rose Shadow) -->
+    <path
+        android:fillColor="#D61C4E"
+        android:pathData="M10,19 L10,24 L22,12 L22,7 Z" />
+
+    <!-- 2. Eraser Front-Left Chisel Head (Vibrant Coral Rubber) -->
+    <path
+        android:fillColor="#FF3B66"
+        android:pathData="M4,13 L4,18 L10,24 L10,19 Z" />
+
+    <!-- 3. Eraser Top Face (Light Pink Rubber) -->
+    <path
+        android:fillColor="#FFB3C3"
+        android:pathData="M4,13 L10,19 L22,7 L16,1 Z" />
+
+    <!-- 4. Top Face Bevel Highlight Line -->
+    <path
+        android:fillColor="#FFE4EA"
+        android:pathData="M4.5,13 L10,18.5 L11,17.5 L5.5,12 Z" />
+
+    <!-- 5. Blue Protective Paper Sleeve (Top Face) -->
+    <path
+        android:fillColor="#0A84FF"
+        android:pathData="M9,10.5 L15,16.5 L20.5,13.8 L14.5,7.8 Z" />
+
+    <!-- 6. Blue Protective Paper Sleeve (Side Shadow Face) -->
+    <path
+        android:fillColor="#0058C6"
+        android:pathData="M15,16.5 L15,21.5 L20.5,18.8 L20.5,13.8 Z" />
+
+    <!-- 7. White Stripe on Paper Sleeve (Top Face) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M11.5,9.2 L17.5,15.2 L18.5,14.7 L12.5,8.7 Z" />
+
+    <!-- 8. White Stripe on Paper Sleeve (Side Face) -->
+    <path
+        android:fillColor="#E2E8F0"
+        android:pathData="M17.5,15.2 L17.5,20.2 L18.5,19.7 L18.5,14.7 Z" />
+
+</vector>

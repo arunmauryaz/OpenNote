@@ -1,0 +1,36 @@
+﻿<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="28"
+    android:viewportHeight="28">
+
+    <!-- Circle (Sky Blue / Indigo) -->
+    <path
+        android:fillColor="#0A84FF"
+        android:pathData="M11,11 m-7,0 a7,7 0 1,0 14,0 a7,7 0 1,0 -14,0" />
+
+    <!-- Circle Highlight -->
+    <path
+        android:fillColor="#64D2FF"
+        android:pathData="M10,8 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+
+    <!-- Triangle (Golden Amber / Orange) -->
+    <path
+        android:fillColor="#FF9500"
+        android:pathData="M19.5,4 L26.5,16 L12.5,16 Z" />
+
+    <!-- Triangle Shadow/Facet -->
+    <path
+        android:fillColor="#E07000"
+        android:pathData="M19.5,4 L26.5,16 L19.5,16 Z" />
+
+    <!-- Rounded Square / Cube (Coral Pink / Crimson) -->
+    <path
+        android:fillColor="#FF2D55"
+        android:pathData="M11,13 L23,13 C24.1,13 25,13.9 25,15 L25,23 C25,24.1 24.1,25 23,25 L15,25 C13.9,25 13,24.1 13,23 L11,15 C11,13.9 11.9,13 13,13 Z" />
+
+    <!-- Square Highlight -->
+    <path
+        android:fillColor="#FF6482"
+        android:pathData="M13,15 L23,15 C23.6,15 24,15.4 24,16 L24,18 L13,18 Z" />
+</vector>

@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="28"
+    android:viewportHeight="28">
+  <!-- Dotted Circle ring -->
+  <path
+      android:strokeColor="#0A84FF"
+      android:strokeWidth="1.5"
+      android:pathData="M14,3a11,11 0 1,0 11,11A11,11 0 0,0 14,3z"/>
+  <!-- Eraser -->
+  <path
+      android:fillColor="#FF9500"
+      android:pathData="M11,14l6,-6l5,5l-6,6z"/>
+  <path
+      android:fillColor="#D1D1D6"
+      android:pathData="M8,17l3,-3l5,5l-3,3z"/>
+</vector>

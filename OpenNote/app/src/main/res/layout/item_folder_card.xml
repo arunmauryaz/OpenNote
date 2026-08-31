@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/dialog_fm_card_height"
+    android:layout_margin="@dimen/dialog_fm_card_margin"
+    android:background="@drawable/bg_folder_card"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical"
+    android:padding="@dimen/dialog_fm_card_padding">
+
+    <!-- Thumbnail / Preview Area -->
+    <FrameLayout
+        android:id="@+id/layoutThumbnailContainer"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dialog_fm_thumb_height"
+        android:background="@drawable/bg_thumbnail_container"
+        android:clipToOutline="true">
+
+        <ImageView
+            android:id="@+id/ivFolderCardIcon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_folder_modern" />
+
+        <ImageView
+            android:id="@+id/ivFileTypeBadge"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="3dp"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <!-- File / Folder Name -->
+    <TextView
+        android:id="@+id/tvFolderCardName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="Documents"
+        android:textColor="#1F2937"
+        android:textSize="@dimen/dialog_fm_card_title_size"
+        android:textStyle="bold" />
+
+    <!-- Subtitle (Count or Size • Date) -->
+    <TextView
+        android:id="@+id/tvFolderCardCount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="3 Files"
+        android:textColor="#94A3B8"
+        android:textSize="@dimen/dialog_fm_card_sub_size" />
+
+</LinearLayout>

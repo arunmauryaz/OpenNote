@@ -1,0 +1,41 @@
+﻿<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="28"
+    android:viewportHeight="28">
+
+    <!-- Easel Tripod Legs (Warm Walnut Wood) -->
+    <path
+        android:fillColor="#8D5B4C"
+        android:pathData="M13,2 L15,2 L15,6 L13,6 Z M6,18 L3.5,26 L5.5,26 L7.5,18 Z M22,18 L24.5,26 L22.5,26 L20.5,18 Z M13,18 L13,25 L15,25 L15,18 Z" />
+
+    <!-- Canvas Frame Shadow / Backing -->
+    <path
+        android:fillColor="#5D4037"
+        android:pathData="M4,4 L24,4 C24.6,4 25,4.4 25,5 L25,18 C25,18.6 24.6,19 24,19 L4,19 C3.4,19 3,18.6 3,18 L3,5 C3,4.4 3.4,4 4,4 Z" />
+
+    <!-- Canvas Board (Crisp White / Sky Blue) -->
+    <path
+        android:fillColor="#E1F5FE"
+        android:pathData="M4.5,5.5 L23.5,5.5 L23.5,17.5 L4.5,17.5 Z" />
+
+    <!-- Canvas Artwork / Landscape Graphic: Sun & Hills -->
+    <path
+        android:fillColor="#FFD54F"
+        android:pathData="M18,9 m-2.5,0 a2.5,2.5 0 1,0 5,0 a2.5,2.5 0 1,0 -5,0" />
+
+    <!-- Purple / Indigo Hill -->
+    <path
+        android:fillColor="#7E57C2"
+        android:pathData="M5,17.5 L12,11 L18,17.5 Z" />
+
+    <!-- Green Emerald Hill -->
+    <path
+        android:fillColor="#26A69A"
+        android:pathData="M11,17.5 L17,12.5 L23,17.5 Z" />
+
+    <!-- Easel Shelf / Rest (Golden Wood) -->
+    <path
+        android:fillColor="#BCAAA4"
+        android:pathData="M2,17.5 L26,17.5 L26,19 L2,19 Z" />
+</vector>

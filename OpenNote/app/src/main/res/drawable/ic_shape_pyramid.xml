@@ -1,0 +1,18 @@
+﻿<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <!-- Pyramid Left Face -->
+  <path
+      android:fillColor="#FBBF24"
+      android:strokeColor="#B45309"
+      android:strokeWidth="1.2"
+      android:pathData="M12,3 L3,19 L12,21 Z" />
+  <!-- Pyramid Right Face -->
+  <path
+      android:fillColor="#F59E0B"
+      android:strokeColor="#B45309"
+      android:strokeWidth="1.2"
+      android:pathData="M12,3 L21,19 L12,21 Z" />
+</vector>

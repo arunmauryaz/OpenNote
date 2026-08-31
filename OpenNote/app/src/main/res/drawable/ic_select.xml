@@ -1,0 +1,26 @@
+﻿<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="28"
+    android:viewportHeight="28">
+
+    <!-- Pointer Shadow -->
+    <path
+        android:fillColor="#33000000"
+        android:pathData="M6.5,4.5 L6.5,22.5 L11.5,17.5 L15.5,25.5 L18.5,24.0 L14.5,16.0 L21.5,16.0 Z" />
+
+    <!-- Pointer Border (Dark Navy / Indigo) -->
+    <path
+        android:fillColor="#1E293B"
+        android:pathData="M5,3 L5,21 L10,16 L14,24 L17,22.5 L13,14.5 L20,14.5 Z" />
+
+    <!-- Pointer Core (Vibrant Electric Blue) -->
+    <path
+        android:fillColor="#0A84FF"
+        android:pathData="M6.5,5.5 L6.5,18.5 L10.5,14.5 L14.5,22.5 L15.5,22.0 L11.5,14.0 L17.5,14.0 Z" />
+
+    <!-- Pointer Inner Highlight -->
+    <path
+        android:fillColor="#60A5FA"
+        android:pathData="M7,6.5 L7,16 L10,13 L7,6.5 Z" />
+</vector>

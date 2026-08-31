@@ -1,0 +1,3828 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:background="#121214">
+
+    <!-- 1. FULLSCREEN OPENGL CANVAS -->
+    <com.cruse.openwhiteboard.ui.WhiteboardSurfaceView
+        android:id="@+id/whiteboardSurface"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+    <!-- 2. PEN TOOLS POPUP CARD (Floats above Main Tool Dock) -->
+    <LinearLayout
+        android:id="@+id/flyoutPen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/dockMainTools"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/flyout_margin_bottom"
+        android:background="@drawable/bg_pen_card"
+        android:elevation="20dp"
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:visibility="gone">
+
+        <ScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+
+            <!-- Inner Light Gray Card -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_pen_inner_card"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+            <!-- Subheader: Pen types -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pen types"
+                android:textColor="#8E8E93"
+                android:textSize="12sp" />
+
+            <!-- Row 1: 7 Pen Types -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <!-- 1. Pencil / Standard Pen -->
+                <ImageButton
+                    android:id="@+id/flyPenStandard"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_tool_selected"
+                    android:contentDescription="Standard Pen"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_pen" />
+
+                <!-- 2. Paint Brush -->
+                <ImageButton
+                    android:id="@+id/flyPenBrush"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_tool_unselected"
+                    android:contentDescription="Paint Brush"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_brush" />
+
+                <!-- 3. Highlighter Marker -->
+                <ImageButton
+                    android:id="@+id/flyPenHighlighter"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_tool_unselected"
+                    android:contentDescription="Highlighter"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_highlighter" />
+
+                <!-- 4. Rubber Stamp -->
+                <ImageButton
+                    android:id="@+id/flyPenStamp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_tool_unselected"
+                    android:contentDescription="Rubber Stamp"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_stamp" />
+
+                <!-- 5. Laser Ribbon -->
+                <ImageButton
+                    android:id="@+id/flyPenLaser"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_tool_unselected"
+                    android:contentDescription="Laser Ribbon"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_laser_ribbon" />
+
+                <!-- 6. Flower Stamp -->
+                <ImageButton
+                    android:id="@+id/flyPenShapeStamp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_tool_unselected"
+                    android:contentDescription="Flower Stamp"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_flower_stamp" />
+
+                <!-- 7. Magic Glitter -->
+                <ImageButton
+                    android:id="@+id/flyPenGlitter"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_tool_unselected"
+                    android:contentDescription="Glitter Sparkles"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_glitter" />
+            </LinearLayout>
+
+            <!-- Row 2: Stroke Thickness Presets & Quick Colors -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <!-- Thin Line Preset (Pill Button) -->
+                <ImageButton
+                    android:id="@+id/flyWidthThin"
+                    android:layout_width="36dp"
+                    android:layout_height="32dp"
+                    android:background="@drawable/bg_pill_unselected"
+                    android:contentDescription="Thin Stroke"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_line_thin"
+                    app:tint="#4A4A4F" />
+
+                <!-- Medium Line Preset (Pill Button) -->
+                <ImageButton
+                    android:id="@+id/flyWidthMedium"
+                    android:layout_width="36dp"
+                    android:layout_height="32dp"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_pill_selected"
+                    android:contentDescription="Medium Stroke"
+                    android:padding="7dp"
+                    android:src="@drawable/ic_line_medium"
+                    app:tint="#FFFFFF" />
+
+                <!-- Thick Line Preset (Pill Button) -->
+                <ImageButton
+                    android:id="@+id/flyWidthThick"
+                    android:layout_width="36dp"
+                    android:layout_height="32dp"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_pill_unselected"
+                    android:contentDescription="Thick Stroke"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_line_thick"
+                    app:tint="#4A4A4F" />
+
+                <!-- Separator Divider -->
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="22dp"
+                    android:layout_marginHorizontal="12dp"
+                    android:background="#D1D1D6" />
+
+                <!-- Black Swatch with Active Caret -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/caretBlack"
+                        android:layout_width="10dp"
+                        android:layout_height="6dp"
+                        android:layout_marginBottom="2dp"
+                        android:src="@drawable/ic_caret_up"
+                        android:visibility="visible" />
+
+                    <View
+                        android:id="@+id/colorBlack"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:background="@drawable/bg_color_black" />
+                </LinearLayout>
+
+                <!-- White Swatch with Caret -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/caretWhite"
+                        android:layout_width="10dp"
+                        android:layout_height="6dp"
+                        android:layout_marginBottom="2dp"
+                        android:src="@drawable/ic_caret_up"
+                        android:visibility="invisible" />
+
+                    <View
+                        android:id="@+id/colorWhite"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:background="@drawable/bg_color_white" />
+                </LinearLayout>
+
+                <!-- Red Swatch -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/caretRed"
+                        android:layout_width="10dp"
+                        android:layout_height="6dp"
+                        android:layout_marginBottom="2dp"
+                        android:src="@drawable/ic_caret_up"
+                        android:visibility="invisible" />
+
+                    <View
+                        android:id="@+id/colorRed"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:background="@drawable/bg_color_red" />
+                </LinearLayout>
+
+                <!-- Blue Swatch -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/caretBlue"
+                        android:layout_width="10dp"
+                        android:layout_height="6dp"
+                        android:layout_marginBottom="2dp"
+                        android:src="@drawable/ic_caret_up"
+                        android:visibility="invisible" />
+
+                    <View
+                        android:id="@+id/colorBlue"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:background="@drawable/bg_color_blue" />
+                </LinearLayout>
+
+                <!-- Rainbow Color Wheel Selector -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/caretCustom"
+                        android:layout_width="10dp"
+                        android:layout_height="6dp"
+                        android:layout_marginBottom="2dp"
+                        android:src="@drawable/ic_caret_up"
+                        android:visibility="invisible" />
+
+                    <ImageButton
+                        android:id="@+id/btnColorWheelPicker"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:background="@drawable/bg_tool_unselected"
+                        android:contentDescription="Custom Color Wheel Picker"
+                        android:padding="2dp"
+                        android:src="@drawable/ic_color_wheel" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- 3. ERASER FLYOUT POPUP (3 Options: Normal, Object, Clear Page) -->
+    <LinearLayout
+        android:id="@+id/flyoutEraser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/dockMainTools"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/flyout_margin_bottom"
+        android:background="@drawable/bg_pen_card"
+        android:elevation="20dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="8dp"
+        android:visibility="gone">
+
+        <!-- 1. Normal / Classic Paint Circular Area Eraser -->
+        <ImageButton
+            android:id="@+id/btnEraserNormal"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:background="@drawable/bg_tool_selected"
+            android:contentDescription="Normal Eraser"
+            android:padding="6dp"
+            android:src="@drawable/ic_eraser_pixel" />
+
+        <!-- 2. Object / Whole Stroke Eraser -->
+        <ImageButton
+            android:id="@+id/btnEraserObject"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_marginStart="12dp"
+            android:background="@drawable/bg_tool_unselected"
+            android:contentDescription="Object Eraser"
+            android:padding="6dp"
+            android:src="@drawable/ic_eraser_stroke" />
+
+        <!-- 3. Clear Whole Page Trash Bin -->
+        <ImageButton
+            android:id="@+id/btnClearPage"
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_marginStart="12dp"
+            android:background="@drawable/bg_tool_unselected"
+            android:contentDescription="Clear Page Trash"
+            android:padding="6dp"
+            android:src="@drawable/ic_trash_bin" />
+    </LinearLayout>
+
+    <!-- 3B. ERASER SIZE SLIDER SUB-POPUP (Appears above Normal Eraser when clicked again) -->
+    <LinearLayout
+        android:id="@+id/cardEraserSizeSlider"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/flyoutEraser"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/bg_pen_card"
+        android:elevation="24dp"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="10dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="6dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Eraser Size"
+            android:textColor="#3C3C43"
+            android:textSize="12sp" />
+
+        <SeekBar
+            android:id="@+id/seekBarEraserSize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="120"
+            android:progress="40" />
+    </LinearLayout>
+
+    <!-- 3C. SHAPES FLYOUT POPUP (2D Shapes & 3D Shapes Divided by Vertical Line) -->
+    <LinearLayout
+        android:id="@+id/flyoutShapes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/dockMainTools"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/flyout_margin_bottom"
+        android:background="@drawable/bg_pen_card"
+        android:elevation="20dp"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"
+        android:visibility="gone">
+
+        <!-- Top Header with Title and Close Button -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:fontFamily="sans-serif-medium"
+                android:text="Shapes"
+                android:textColor="#1C1C1E"
+                android:textSize="14sp" />
+
+            <ImageButton
+                android:id="@+id/btnCloseShapes"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/bg_tool_unselected"
+                android:contentDescription="Close Shapes"
+                android:padding="5dp"
+                android:src="@drawable/ic_close" />
+        </RelativeLayout>
+
+        <!-- Main Content: 2D Shapes Section (Left) | Vertical Separator | 3D Shapes Section (Right) -->
+        <HorizontalScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <!-- LEFT SECTION: 2D SHAPES -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="0.05"
+                    android:text="2D SHAPES"
+                    android:textColor="#8E8E93"
+                    android:textSize="11sp" />
+
+                <!-- Row 1: Line, Arrow, Rectangle, Circle, Triangle -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/btnShapeLine"
+                        android:layout_width="@dimen/flyout_shape_btn_size"
+                        android:layout_height="@dimen/flyout_shape_btn_size"
+                        android:background="@drawable/bg_tool_unselected"
+                        android:contentDescription="Line"
+                        android:padding="@dimen/flyout_shape_btn_padding"
+                        android:src="@drawable/ic_shape_line" />
+
+                    <ImageButton
+                        android:id="@+id/btnShapeArrow"
+                        android:layout_width="@dimen/flyout_shape_btn_size"
+                        android:layout_height="@dimen/flyout_shape_btn_size"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_tool_unselected"
+                        android:contentDescription="Arrow"
+                        android:padding="@dimen/flyout_shape_btn_padding"
+                        android:src="@drawable/ic_shape_arrow" />
+
+                    <ImageButton
+                        android:id="@+id/btnShapeRect"
+                        android:layout_width="@dimen/flyout_shape_btn_size"
+                        android:layout_height="@dimen/flyout_shape_btn_size"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_tool_selected"
+                        android:contentDescription="Rectangle"
+                        android:padding="@dimen/flyout_shape_btn_padding"
+                        android:src="@drawable/ic_shape_rect" />
+
+                    <ImageButton
+                        android:id="@+id/btnShapeCircle"
+                        android:layout_width="@dimen/flyout_shape_btn_size"
+                        android:layout_height="@dimen/flyout_shape_btn_size"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_tool_unselected"
+                        android:contentDescription="Circle"
+                        android:padding="@dimen/flyout_shape_btn_padding"
+                        android:src="@drawable/ic_shape_circle" />
+
+                    <ImageButton
+                        android:id="@+id/btnShapeTriangle"
+                        android:layout_width="@dimen/flyout_shape_btn_size"
+                        android:layout_height="@dimen/flyout_shape_btn_size"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_tool_unselected"
+                        android:contentDescription="Triangle"
+                        android:padding="@dimen/flyout_shape_btn_padding"
+                        android:src="@drawable/ic_shape_triangle" />
+                </LinearLayout>
+
+                <!-- Row 2: Right Triangle, Diamond, Star, Hexagon -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/btnShapeRightTriangle"
+                        android:layout_width="@dimen/flyout_shape_btn_size"
+                        android:layout_height="@dimen/flyout_shape_btn_size"
+                        android:background="@drawable/bg_tool_unselected"
+                        android:contentDescription="Right Triangle"
+                        android:padding="@dimen/flyout_shape_btn_padding"
+                        android:src="@drawable/ic_shape_right_triangle" />
+
+                    <ImageButton
+                        android:id="@+id/btnShapeDiamond"
+                        android:layout_width="@dimen/flyout_shape_btn_size"
+                        android:layout_height="@dimen/flyout_shape_btn_size"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_tool_unselected"
+                        android:contentDescription="Diamond"
+                        android:padding="@dimen/flyout_shape_btn_padding"
+                        android:src="@drawable/ic_shape_diamond" />
+
+                    <ImageButton
+                        android:id="@+id/btnShapeStar"
+                        android:layout_width="@dimen/flyout_shape_btn_size"
+                        android:layout_height="@dimen/flyout_shape_btn_size"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_tool_unselected"
+                        android:contentDescription="Star"
+                        android:padding="@dimen/flyout_shape_btn_padding"
+                        android:src="@drawable/ic_shape_star" />
+
+                    <ImageButton
+                        android:id="@+id/btnShapeHexagon"
+                        android:layout_width="@dimen/flyout_shape_btn_size"
+                        android:layout_height="@dimen/flyout_shape_btn_size"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_tool_unselected"
+                        android:contentDescription="Hexagon"
+                        android:padding="@dimen/flyout_shape_btn_padding"
+                        android:src="@drawable/ic_shape_hexagon" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- VERTICAL SEPARATOR LINE -->
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_marginHorizontal="14dp"
+                android:background="#D1D1D6" />
+
+            <!-- RIGHT SECTION: 3D SHAPES -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="6dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="0.05"
+                    android:text="3D SHAPES"
+                    android:textColor="#8E8E93"
+                    android:textSize="11sp" />
+
+                <!-- Row 1: Cube, Cuboid, Sphere, Cylinder -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/btnShapeCube"
+                        android:layout_width="@dimen/flyout_shape_btn_size"
+                        android:layout_height="@dimen/flyout_shape_btn_size"
+                        android:background="@drawable/bg_tool_unselected"
+                        android:contentDescription="Cube"
+                        android:padding="@dimen/flyout_shape_btn_padding"
+                        android:src="@drawable/ic_shape_cube" />
+
+                    <ImageButton
+                        android:id="@+id/btnShapeCuboid"
+                        android:layout_width="@dimen/flyout_shape_btn_size"
+                        android:layout_height="@dimen/flyout_shape_btn_size"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_tool_unselected"
+                        android:contentDescription="Cuboid"
+                        android:padding="@dimen/flyout_shape_btn_padding"
+                        android:src="@drawable/ic_shape_cuboid" />
+
+                    <ImageButton
+                        android:id="@+id/btnShapeSphere"
+                        android:layout_width="@dimen/flyout_shape_btn_size"
+                        android:layout_height="@dimen/flyout_shape_btn_size"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_tool_unselected"
+                        android:contentDescription="Sphere"
+                        android:padding="@dimen/flyout_shape_btn_padding"
+                        android:src="@drawable/ic_shape_sphere" />
+
+                    <ImageButton
+                        android:id="@+id/btnShapeCylinder"
+                        android:layout_width="@dimen/flyout_shape_btn_size"
+                        android:layout_height="@dimen/flyout_shape_btn_size"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_tool_unselected"
+                        android:contentDescription="Cylinder"
+                        android:padding="@dimen/flyout_shape_btn_padding"
+                        android:src="@drawable/ic_shape_cylinder" />
+                </LinearLayout>
+
+                <!-- Row 2: Cone, Frustum, Pyramid, Prism -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/btnShapeCone"
+                        android:layout_width="@dimen/flyout_shape_btn_size"
+                        android:layout_height="@dimen/flyout_shape_btn_size"
+                        android:background="@drawable/bg_tool_unselected"
+                        android:contentDescription="Cone"
+                        android:padding="@dimen/flyout_shape_btn_padding"
+                        android:src="@drawable/ic_shape_cone" />
+
+                    <ImageButton
+                        android:id="@+id/btnShapeFrustum"
+                        android:layout_width="@dimen/flyout_shape_btn_size"
+                        android:layout_height="@dimen/flyout_shape_btn_size"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_tool_unselected"
+                        android:contentDescription="Frustum"
+                        android:padding="@dimen/flyout_shape_btn_padding"
+                        android:src="@drawable/ic_shape_frustum" />
+
+                    <ImageButton
+                        android:id="@+id/btnShapePyramid"
+                        android:layout_width="@dimen/flyout_shape_btn_size"
+                        android:layout_height="@dimen/flyout_shape_btn_size"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_tool_unselected"
+                        android:contentDescription="Pyramid"
+                        android:padding="@dimen/flyout_shape_btn_padding"
+                        android:src="@drawable/ic_shape_pyramid" />
+
+                    <ImageButton
+                        android:id="@+id/btnShapePrism"
+                        android:layout_width="@dimen/flyout_shape_btn_size"
+                        android:layout_height="@dimen/flyout_shape_btn_size"
+                        android:layout_marginStart="8dp"
+                        android:background="@drawable/bg_tool_unselected"
+                        android:contentDescription="Triangular Prism"
+                        android:padding="@dimen/flyout_shape_btn_padding"
+                        android:src="@drawable/ic_shape_prism" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+        </HorizontalScrollView>
+
+    </LinearLayout>
+
+    <!-- 3b. SYSTEM FILE OPERATIONS FLYOUT (Shown when File Manager Provider is System) -->
+    <LinearLayout
+        android:id="@+id/flyoutSystemFileMenu"
+        android:layout_width="@dimen/flyout_width"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/dockMainTools"
+        android:layout_alignEnd="@id/dockMainTools"
+        android:layout_marginBottom="@dimen/flyout_margin_bottom"
+        android:background="@drawable/bg_pen_card"
+        android:elevation="20dp"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:visibility="gone">
+
+        <!-- Header: Title + Close Button -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:text="File Operations"
+                android:textColor="#1C1C1E"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/btnCloseSystemFileMenu"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="Close"
+                android:padding="6dp"
+                android:src="@drawable/ic_close"
+                app:tint="#4A4A4F" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="6dp"
+            android:background="#E5E5EA" />
+
+        <!-- 1. New Document -->
+        <LinearLayout
+            android:id="@+id/btnSysFileNew"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="?selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_add"
+                app:tint="#0A84FF" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="New Whiteboard"
+                android:textColor="#1C1C1E"
+                android:textSize="13.5sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- 2. Open Document -->
+        <LinearLayout
+            android:id="@+id/btnSysFileOpen"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="?selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_folder"
+                app:tint="#0A84FF" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Open Document..."
+                android:textColor="#1C1C1E"
+                android:textSize="13.5sp" />
+        </LinearLayout>
+
+        <!-- 3. Save Document -->
+        <LinearLayout
+            android:id="@+id/btnSysFileSave"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="?selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_save"
+                app:tint="#34C759" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Save (.owb)"
+                android:textColor="#1C1C1E"
+                android:textSize="13.5sp" />
+        </LinearLayout>
+
+        <!-- 4. Save As -->
+        <LinearLayout
+            android:id="@+id/btnSysFileSaveAs"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="?selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_save_as"
+                app:tint="#34C759" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Save As..."
+                android:textColor="#1C1C1E"
+                android:textSize="13.5sp" />
+        </LinearLayout>
+
+        <!-- 5. Export PDF -->
+        <LinearLayout
+            android:id="@+id/btnSysFileExportPdf"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="?selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_settings_file"
+                app:tint="#FF9500" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Export as PDF..."
+                android:textColor="#1C1C1E"
+                android:textSize="13.5sp" />
+        </LinearLayout>
+
+        <!-- 6. Share PDF -->
+        <LinearLayout
+            android:id="@+id/btnSysFileShare"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="?selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_share"
+                app:tint="#0A84FF" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Share (PDF)..."
+                android:textColor="#1C1C1E"
+                android:textSize="13.5sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- 4. BACKGROUND FLYOUT POPUP (Dual-Panel matching requested clean design) -->
+    <LinearLayout
+        android:id="@+id/flyoutBackground"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/dockBackground"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="@dimen/dock_side_margin"
+        android:layout_marginBottom="@dimen/flyout_margin_bottom"
+        android:gravity="bottom"
+        android:clickable="true"
+        android:focusable="true"
+        android:elevation="24dp"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <!-- CARD 1: MAIN BACKGROUND MENU (Left Card) -->
+        <LinearLayout
+            android:layout_width="190dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="@drawable/bg_floating_bar"
+            android:clickable="true"
+            android:focusable="true"
+            android:elevation="8dp"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="Background"
+                android:textColor="#1C1C1E"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <!-- Option 1: Color (Highlighted / Active) -->
+            <LinearLayout
+                android:id="@+id/btnBgColorGrid"
+                android:layout_width="match_parent"
+                android:layout_height="38dp"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_tool_unselected"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="8dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_palette"
+                    app:tint="#1C1C1E" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:text="Color"
+                    android:textColor="#1C1C1E"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="#8E8E93" />
+            </LinearLayout>
+
+            <!-- Option 2: Image -->
+            <LinearLayout
+                android:id="@+id/btnBgImages"
+                android:layout_width="match_parent"
+                android:layout_height="38dp"
+                android:layout_marginTop="4dp"
+                android:background="?selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="8dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_image"
+                    app:tint="#4A4A4F" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="Image"
+                    android:textColor="#1C1C1E"
+                    android:textSize="13.5sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="8dp"
+                android:background="#E5E5EA" />
+
+            <!-- Option 3: Date & time Toggle -->
+            <LinearLayout
+                android:id="@+id/layoutBgDateTimeRow"
+                android:layout_width="match_parent"
+                android:layout_height="38dp"
+                android:background="?selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="8dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_calendar"
+                    app:tint="#4A4A4F" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:text="Date &amp; time"
+                    android:textColor="#1C1C1E"
+                    android:textSize="13.5sp" />
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/switchDateTimeOverlay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- CARD 2: COLOR SUB-PANEL (Right Card) -->
+        <LinearLayout
+            android:id="@+id/cardColorGridSubPanel"
+            android:layout_width="260dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_floating_bar"
+            android:clickable="true"
+            android:focusable="true"
+            android:elevation="8dp"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <!-- Section 1: Irlen Filter Colors -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Irlen filter colors"
+                    android:textColor="#8E8E93"
+                    android:textSize="12sp" />
+
+                <ImageView
+                    android:id="@+id/btnIrlenInfo"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginStart="6dp"
+                    android:src="@drawable/ic_info_circle" />
+            </LinearLayout>
+
+            <!-- 10 Irlen Filter Swatches (2 rows of 5) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="26dp"
+                    android:orientation="horizontal">
+
+                    <View android:id="@+id/bgIrlen01" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="4dp" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#FDE2C8" />
+                    <View android:id="@+id/bgIrlen02" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="4dp" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#F3C5C5" />
+                    <View android:id="@+id/bgIrlen03" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="4dp" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#FCE588" />
+                    <View android:id="@+id/bgIrlen04" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="4dp" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#FEF9A7" />
+                    <View android:id="@+id/bgIrlen05" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#B9F5AA" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="26dp"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
+
+                    <View android:id="@+id/bgIrlen06" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="4dp" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#A6FBE2" />
+                    <View android:id="@+id/bgIrlen07" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="4dp" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#B1D0FD" />
+                    <View android:id="@+id/bgIrlen08" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="4dp" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#CCB4FD" />
+                    <View android:id="@+id/bgIrlen09" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="4dp" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#E2EDFD" />
+                    <View android:id="@+id/bgIrlen10" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#DFDFDF" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="8dp"
+                android:background="#E5E5EA" />
+
+            <!-- Section 2: General Colors -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="General Colors"
+                android:textColor="#8E8E93"
+                android:textSize="12sp" />
+
+            <!-- 10 General Colors Swatches (2 rows of 5) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="26dp"
+                    android:orientation="horizontal">
+
+                    <View android:id="@+id/bgGen01" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="4dp" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#FFFFFF" />
+                    <View android:id="@+id/bgGen02" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="4dp" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#F8F9FA" />
+                    <View android:id="@+id/bgGen03" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="4dp" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#1C1C1E" />
+                    <View android:id="@+id/bgGen04" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="4dp" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#2D483A" />
+                    <View android:id="@+id/bgGen05" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#4F795E" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="26dp"
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
+
+                    <View android:id="@+id/bgGen06" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="4dp" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#FF453A" />
+                    <View android:id="@+id/bgGen07" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="4dp" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#FF9500" />
+                    <View android:id="@+id/bgGen08" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="4dp" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#FFCC00" />
+                    <View android:id="@+id/bgGen09" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="4dp" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#0040DD" />
+                    <View android:id="@+id/bgGen10" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/bg_color_swatch_rounded" android:backgroundTint="#7B00DD" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="8dp"
+                android:background="#E5E5EA" />
+
+            <!-- Section 3: Custom Color Wheel Option -->
+            <LinearLayout
+                android:id="@+id/layoutBgCustomColorRow"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_tool_unselected"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="8dp">
+
+                <ImageView
+                    android:id="@+id/btnBgColorWheel"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_color_wheel" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:text="Custom Hex Color Palette"
+                    android:textColor="#1C1C1E"
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="#8E8E93" />
+            </LinearLayout>
+
+            <!-- Section 4: Apply to All Pages Button -->
+            <Button
+                android:id="@+id/btnApplyBgAllPages"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="#F2F2F7"
+                android:fontFamily="sans-serif-medium"
+                android:text="Apply to all pages"
+                android:textAllCaps="false"
+                android:textColor="#4A4A4F"
+                android:textSize="12.5sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Top-Right Live Date & Time Overlay Badge (Controlled by Background settings) -->
+    <LinearLayout
+        android:id="@+id/layoutDateTimeOverlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/bg_floating_bar"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="8dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_calendar"
+            app:tint="#0A84FF" />
+
+        <TextView
+            android:id="@+id/tvDateTimeOverlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Tuesday, August 18, 2026 • 06:55 PM"
+            android:textColor="#1C1C1E"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- PAGE MANAGER POPUP PANEL (Dual-Mode: Vertical strip / Expanded Grid Modal) -->
+    <LinearLayout
+        android:id="@+id/flyoutPageManager"
+        android:layout_width="220dp"
+        android:layout_height="560dp"
+        android:layout_above="@id/dockPageNav"
+        android:layout_alignStart="@id/dockPageNav"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_pen_card"
+        android:elevation="24dp"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:visibility="gone">
+
+        <!-- Panel Header: Title + Optional Info -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/tvPageManagerTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:text="Pages"
+                android:textColor="#1C1C1E"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvPageManagerCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/tvPageManagerTitle"
+                android:layout_marginStart="8dp"
+                android:layout_centerVertical="true"
+                android:text="(1/1)"
+                android:textColor="#8E8E93"
+                android:textSize="13sp" />
+        </RelativeLayout>
+
+        <!-- Pages RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvPages"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipToPadding="false"
+            android:scrollbars="vertical" />
+
+        <!-- Floating Selection Count Pill (e.g. "1 pages selected [x]") -->
+        <LinearLayout
+            android:id="@+id/layoutPageSelectionPill"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/bg_selection_pill"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvPageSelectionCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1 pages selected"
+                android:textColor="#1C1C1E"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/btnClearPageSelection"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginStart="8dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_close"
+                app:tint="#8E8E93" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="4dp"
+            android:background="#E5E5EA" />
+
+        <!-- Bottom Action Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingTop="4dp">
+
+            <!-- Batch Action: Delete Selected -->
+            <ImageButton
+                android:id="@+id/btnDeleteSelectedPages"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="Delete Selected Pages"
+                android:padding="5dp"
+                android:src="@drawable/ic_delete"
+                android:visibility="gone"
+                app:tint="#FF3B30" />
+
+            <!-- Batch Action: Select All / Invert -->
+            <ImageButton
+                android:id="@+id/btnSelectAllPages"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginStart="4dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="Select All Pages"
+                android:padding="5dp"
+                android:src="@drawable/ic_select_all"
+                android:visibility="gone"
+                app:tint="#4A4A4F" />
+
+            <!-- Batch Action Divider -->
+            <View
+                android:id="@+id/dividerBatchActions"
+                android:layout_width="1dp"
+                android:layout_height="18dp"
+                android:layout_marginHorizontal="6dp"
+                android:background="#D1D1D6"
+                android:visibility="gone" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- [📌] Pin Panel Button -->
+            <ImageButton
+                android:id="@+id/btnPinPageManager"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="Pin Panel"
+                android:padding="5dp"
+                android:src="@drawable/ic_pin"
+                app:tint="#4A4A4F" />
+
+            <!-- [⊞] Expand / Collapse Grid Mode -->
+            <ImageButton
+                android:id="@+id/btnExpandPageManager"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginStart="6dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="Expand to Grid View"
+                android:padding="5dp"
+                android:src="@drawable/ic_grid"
+                app:tint="#4A4A4F" />
+
+            <!-- [✕] Close Panel -->
+            <ImageButton
+                android:id="@+id/btnClosePageManager"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginStart="6dp"
+                android:background="?selectableItemBackgroundBorderless"
+                android:contentDescription="Close"
+                android:padding="5dp"
+                android:src="@drawable/ic_close"
+                app:tint="#4A4A4F" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- 5. STANDALONE DOCK 1 (FAR-LEFT: BACKGROUND CUSTOMIZATION DOCK) -->
+    <LinearLayout
+        android:id="@+id/dockBackground"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="@dimen/dock_side_margin"
+        android:layout_marginBottom="@dimen/dock_margin_bottom"
+        android:background="@drawable/bg_floating_bar"
+        android:elevation="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/dock_padding_horizontal"
+        android:paddingVertical="@dimen/dock_padding_vertical">
+
+        <!-- [🖼️] Background Picture Frame Tool Button -->
+        <ImageButton
+            android:id="@+id/btnBackground"
+            android:layout_width="@dimen/dock_btn_size"
+            android:layout_height="@dimen/dock_btn_size"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Background Customization"
+            android:padding="@dimen/dock_btn_padding"
+            android:src="@drawable/ic_background_frame" />
+    </LinearLayout>
+
+    <!-- 6. STANDALONE DOCK 2 (LEFT: PAGE NAVIGATION DOCK) -->
+    <LinearLayout
+        android:id="@+id/dockPageNav"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toEndOf="@id/dockBackground"
+        android:layout_marginStart="@dimen/dock_spacing"
+        android:layout_marginBottom="@dimen/dock_margin_bottom"
+        android:background="@drawable/bg_floating_bar"
+        android:elevation="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/dock_padding_horizontal"
+        android:paddingVertical="@dimen/dock_padding_vertical">
+
+        <!-- [<] Previous Page -->
+        <ImageButton
+            android:id="@+id/btnPrevPage"
+            android:layout_width="@dimen/dock_btn_small_size"
+            android:layout_height="@dimen/dock_btn_small_size"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Previous Page"
+            android:src="@drawable/ic_chevron_left"
+            app:tint="#4A4A4F" />
+
+        <!-- 1 / 1 (Pill Capsule) -->
+        <TextView
+            android:id="@+id/tvPageInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/dock_spacing"
+            android:background="@drawable/bg_page_indicator_pill"
+            android:paddingHorizontal="@dimen/dock_indicator_padding_h"
+            android:paddingVertical="@dimen/dock_indicator_padding_v"
+            android:text="1 / 1"
+            android:textColor="#1C1C1E"
+            android:textSize="@dimen/dock_indicator_text_size"
+            android:textStyle="bold" />
+
+        <!-- [>] Next Page -->
+        <ImageButton
+            android:id="@+id/btnNextPage"
+            android:layout_width="@dimen/dock_btn_small_size"
+            android:layout_height="@dimen/dock_btn_small_size"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Next Page"
+            android:src="@drawable/ic_chevron_right"
+            app:tint="#4A4A4F" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="18dp"
+            android:layout_marginHorizontal="@dimen/dock_spacing"
+            android:background="#E5E7EB" />
+
+        <!-- [+] Add Page -->
+        <ImageButton
+            android:id="@+id/btnAddPage"
+            android:layout_width="@dimen/dock_btn_small_size"
+            android:layout_height="@dimen/dock_btn_small_size"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Add Page"
+            android:padding="@dimen/dock_btn_small_padding"
+            android:src="@drawable/ic_add" />
+    </LinearLayout>
+
+    <!-- 7. STANDALONE DOCK 3 (CENTER: MAIN TOOL DOCK) -->
+    <LinearLayout
+        android:id="@+id/dockMainTools"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/dock_margin_bottom"
+        android:background="@drawable/bg_floating_bar"
+        android:elevation="14dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/dock_padding_horizontal"
+        android:paddingVertical="@dimen/dock_padding_vertical">
+
+        <!-- [↖️] Pointer / Select -->
+        <ImageButton
+            android:id="@+id/btnSelect"
+            android:layout_width="@dimen/dock_btn_size"
+            android:layout_height="@dimen/dock_btn_size"
+            android:background="@drawable/bg_tool_unselected"
+            android:contentDescription="Select"
+            android:padding="@dimen/dock_btn_padding"
+            android:src="@drawable/ic_select" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="22dp"
+            android:layout_marginHorizontal="@dimen/dock_spacing"
+            android:background="#E5E7EB" />
+
+        <!-- [✏️] Pen Tool -->
+        <ImageButton
+            android:id="@+id/btnPen"
+            android:layout_width="@dimen/dock_btn_size"
+            android:layout_height="@dimen/dock_btn_size"
+            android:background="@drawable/bg_tool_selected"
+            android:contentDescription="Pen Tool"
+            android:padding="@dimen/dock_btn_padding"
+            android:src="@drawable/ic_pen" />
+
+        <!-- [🧹] Eraser -->
+        <ImageButton
+            android:id="@+id/btnEraser"
+            android:layout_width="@dimen/dock_btn_size"
+            android:layout_height="@dimen/dock_btn_size"
+            android:layout_marginStart="@dimen/dock_spacing"
+            android:background="@drawable/bg_tool_unselected"
+            android:contentDescription="Eraser Tool"
+            android:padding="@dimen/dock_btn_padding"
+            android:src="@drawable/ic_eraser" />
+
+        <!-- [📐] Shapes -->
+        <ImageButton
+            android:id="@+id/btnShapes"
+            android:layout_width="@dimen/dock_btn_size"
+            android:layout_height="@dimen/dock_btn_size"
+            android:layout_marginStart="@dimen/dock_spacing"
+            android:background="@drawable/bg_tool_unselected"
+            android:contentDescription="Shapes Tool"
+            android:padding="@dimen/dock_btn_padding"
+            android:src="@drawable/ic_shapes" />
+
+        <!-- [📁] File Manager -->
+        <ImageButton
+            android:id="@+id/btnFolder"
+            android:layout_width="@dimen/dock_btn_size"
+            android:layout_height="@dimen/dock_btn_size"
+            android:layout_marginStart="@dimen/dock_spacing"
+            android:background="@drawable/bg_tool_unselected"
+            android:contentDescription="File Manager"
+            android:padding="@dimen/dock_btn_padding"
+            android:src="@drawable/ic_folder" />
+
+    </LinearLayout>
+
+    <!-- 8. STANDALONE DOCK 4 (RIGHT: DEDICATED UNDO / REDO DOCK) -->
+    <LinearLayout
+        android:id="@+id/dockUndoRedo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@id/dockSettings"
+        android:layout_marginEnd="@dimen/dock_spacing"
+        android:layout_marginBottom="@dimen/dock_margin_bottom"
+        android:background="@drawable/bg_floating_bar"
+        android:elevation="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/dock_padding_horizontal"
+        android:paddingVertical="@dimen/dock_padding_vertical">
+
+        <!-- [↶] Undo -->
+        <ImageButton
+            android:id="@+id/btnUndo"
+            android:layout_width="@dimen/dock_btn_size"
+            android:layout_height="@dimen/dock_btn_size"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Undo"
+            android:padding="@dimen/dock_btn_padding"
+            android:src="@drawable/ic_undo" />
+
+        <!-- [↷] Redo -->
+        <ImageButton
+            android:id="@+id/btnRedo"
+            android:layout_width="@dimen/dock_btn_size"
+            android:layout_height="@dimen/dock_btn_size"
+            android:layout_marginStart="@dimen/dock_spacing"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Redo"
+            android:padding="@dimen/dock_btn_padding"
+            android:src="@drawable/ic_redo" />
+
+    </LinearLayout>
+
+    <!-- 9. STANDALONE DOCK 5 (FAR-RIGHT: VIEW & SETTINGS DOCK) -->
+    <LinearLayout
+        android:id="@+id/dockSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="@dimen/dock_side_margin"
+        android:layout_marginBottom="@dimen/dock_margin_bottom"
+        android:background="@drawable/bg_floating_bar"
+        android:elevation="10dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/dock_padding_horizontal"
+        android:paddingVertical="@dimen/dock_padding_vertical">
+
+        <ImageButton
+            android:id="@+id/btnMinimap"
+            android:layout_width="@dimen/dock_btn_size"
+            android:layout_height="@dimen/dock_btn_size"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Toggle Minimap"
+            android:padding="@dimen/dock_btn_padding"
+            android:src="@drawable/ic_minimap" />
+
+        <ImageButton
+            android:id="@+id/btnFitPage"
+            android:layout_width="@dimen/dock_btn_size"
+            android:layout_height="@dimen/dock_btn_size"
+            android:layout_marginStart="@dimen/dock_spacing"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Fit Page"
+            android:padding="@dimen/dock_btn_padding"
+            android:src="@drawable/ic_fit_page" />
+
+        <View
+            android:id="@+id/dividerSettings"
+            android:layout_width="1dp"
+            android:layout_height="18dp"
+            android:layout_marginHorizontal="@dimen/dock_spacing"
+            android:background="#E5E7EB" />
+
+        <!-- [⚙️] Settings Button -->
+        <ImageButton
+            android:id="@+id/btnSettings"
+            android:layout_width="@dimen/dock_btn_size"
+            android:layout_height="@dimen/dock_btn_size"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Settings"
+            android:padding="@dimen/dock_btn_padding"
+            android:src="@drawable/ic_settings" />
+
+    </LinearLayout>
+
+    <!-- 10. COMPREHENSIVE SETTINGS MODAL DIALOG (Two-Pane Master-Detail Window) -->
+    <FrameLayout
+        android:id="@+id/modalSettingsOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#A0000000"
+        android:clickable="true"
+        android:elevation="30dp"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <!-- Main Window Container -->
+        <LinearLayout
+            android:id="@+id/cardSettingsWindow"
+            android:layout_width="@dimen/dialog_settings_width"
+            android:layout_height="@dimen/dialog_settings_height"
+            android:layout_margin="@dimen/dialog_settings_margin"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_file_manager_window"
+            android:elevation="24dp"
+            android:orientation="vertical">
+
+            <!-- Window Header -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dialog_settings_header_height"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/dialog_settings_footer_padding">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="@dimen/dialog_settings_header_icon_size"
+                        android:layout_height="@dimen/dialog_settings_header_icon_size"
+                        android:src="@drawable/ic_settings_gear_subtle"
+                        app:tint="#0F172A" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:text="Settings"
+                        android:textColor="#0F172A"
+                        android:textSize="@dimen/dialog_settings_header_title_size"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvSettingsSubtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="•  Whiteboard Preferences &amp; Hardware Configuration"
+                        android:textColor="#64748B"
+                        android:textSize="@dimen/dialog_settings_header_sub_size" />
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/btnSettingsCloseTop"
+                    android:layout_width="@dimen/dialog_settings_header_close_size"
+                    android:layout_height="@dimen/dialog_settings_header_close_size"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/bg_settings_close_btn"
+                    android:contentDescription="Close Settings"
+                    android:padding="5dp"
+                    android:src="@drawable/ic_close"
+                    app:tint="#475569" />
+
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E2E8F0" />
+
+            <!-- Master-Detail Body: Left Sidebar + Right Content -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <!-- Left Sidebar: Category Navigation Menu -->
+                <LinearLayout
+                    android:id="@+id/layoutSidebarSettings"
+                    android:layout_width="@dimen/dialog_settings_sidebar_width"
+                    android:layout_height="match_parent"
+                    android:background="#F8FAFC"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <!-- Tab 1: Interface & Display -->
+                    <LinearLayout
+                        android:id="@+id/navSettingsUi"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dialog_settings_nav_height"
+                        android:layout_marginBottom="4dp"
+                        android:background="@drawable/bg_settings_nav_active"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="10dp">
+
+                        <ImageView
+                            android:id="@+id/ivNavUi"
+                            android:layout_width="@dimen/dialog_settings_nav_icon_size"
+                            android:layout_height="@dimen/dialog_settings_nav_icon_size"
+                            android:src="@drawable/ic_settings_ui"
+                            app:tint="#0F172A" />
+
+                        <TextView
+                            android:id="@+id/tvNavUi"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="Interface &amp; Display"
+                            android:textColor="#0F172A"
+                            android:textSize="@dimen/dialog_settings_nav_text_size"
+                            android:fontFamily="sans-serif-medium"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <!-- Tab 2: Canvas & Slides -->
+                    <LinearLayout
+                        android:id="@+id/navSettingsCanvas"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dialog_settings_nav_height"
+                        android:layout_marginBottom="4dp"
+                        android:background="@drawable/bg_settings_nav_normal"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="10dp">
+
+                        <ImageView
+                            android:id="@+id/ivNavCanvas"
+                            android:layout_width="@dimen/dialog_settings_nav_icon_size"
+                            android:layout_height="@dimen/dialog_settings_nav_icon_size"
+                            android:src="@drawable/ic_settings_canvas"
+                            app:tint="#64748B" />
+
+                        <TextView
+                            android:id="@+id/tvNavCanvas"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="Canvas &amp; Slides"
+                            android:textColor="#64748B"
+                            android:textSize="@dimen/dialog_settings_nav_text_size"
+                            android:fontFamily="sans-serif-medium" />
+                    </LinearLayout>
+
+                    <!-- Tab 3: Pen & Drawing Tools -->
+                    <LinearLayout
+                        android:id="@+id/navSettingsPen"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dialog_settings_nav_height"
+                        android:layout_marginBottom="4dp"
+                        android:background="@drawable/bg_settings_nav_normal"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="10dp">
+
+                        <ImageView
+                            android:id="@+id/ivNavPen"
+                            android:layout_width="@dimen/dialog_settings_nav_icon_size"
+                            android:layout_height="@dimen/dialog_settings_nav_icon_size"
+                            android:src="@drawable/ic_settings_pen"
+                            app:tint="#64748B" />
+
+                        <TextView
+                            android:id="@+id/tvNavPen"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="Pen &amp; Drawing Tools"
+                            android:textColor="#64748B"
+                            android:textSize="@dimen/dialog_settings_nav_text_size"
+                            android:fontFamily="sans-serif-medium" />
+                    </LinearLayout>
+
+                    <!-- Tab 4: File & Slide Import -->
+                    <LinearLayout
+                        android:id="@+id/navSettingsFile"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dialog_settings_nav_height"
+                        android:layout_marginBottom="4dp"
+                        android:background="@drawable/bg_settings_nav_normal"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="10dp">
+
+                        <ImageView
+                            android:id="@+id/ivNavFile"
+                            android:layout_width="@dimen/dialog_settings_nav_icon_size"
+                            android:layout_height="@dimen/dialog_settings_nav_icon_size"
+                            android:src="@drawable/ic_settings_file"
+                            app:tint="#64748B" />
+
+                        <TextView
+                            android:id="@+id/tvNavFile"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="File &amp; Slide Import"
+                            android:textColor="#64748B"
+                            android:textSize="@dimen/dialog_settings_nav_text_size"
+                            android:fontFamily="sans-serif-medium" />
+                    </LinearLayout>
+
+                    <!-- Tab 5: Touch & Smart Board -->
+                    <LinearLayout
+                        android:id="@+id/navSettingsTouch"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dialog_settings_nav_height"
+                        android:layout_marginBottom="4dp"
+                        android:background="@drawable/bg_settings_nav_normal"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="10dp">
+
+                        <ImageView
+                            android:id="@+id/ivNavTouch"
+                            android:layout_width="@dimen/dialog_settings_nav_icon_size"
+                            android:layout_height="@dimen/dialog_settings_nav_icon_size"
+                            android:src="@drawable/ic_settings_touch"
+                            app:tint="#64748B" />
+
+                        <TextView
+                            android:id="@+id/tvNavTouch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="Touch &amp; Smart Board"
+                            android:textColor="#64748B"
+                            android:textSize="@dimen/dialog_settings_nav_text_size"
+                            android:fontFamily="sans-serif-medium" />
+                    </LinearLayout>
+
+                    <!-- Tab 6: Storage & About -->
+                    <LinearLayout
+                        android:id="@+id/navSettingsAbout"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dialog_settings_nav_height"
+                        android:background="@drawable/bg_settings_nav_normal"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="10dp">
+
+                        <ImageView
+                            android:id="@+id/ivNavAbout"
+                            android:layout_width="@dimen/dialog_settings_nav_icon_size"
+                            android:layout_height="@dimen/dialog_settings_nav_icon_size"
+                            android:src="@drawable/ic_settings_about"
+                            app:tint="#64748B" />
+
+                        <TextView
+                            android:id="@+id/tvNavAbout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="Storage &amp; About"
+                            android:textColor="#64748B"
+                            android:textSize="@dimen/dialog_settings_nav_text_size"
+                            android:fontFamily="sans-serif-medium" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#E2E8F0" />
+
+                <!-- Right Content Area: Detailed Category Sections -->
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="#FFFFFF">
+
+                    <!-- ══════════════════════════════════════════════════════════════ -->
+                    <!-- SECTION 1: INTERFACE & DISPLAY -->
+                    <!-- ══════════════════════════════════════════════════════════════ -->
+                    <ScrollView
+                        android:id="@+id/scrollSectionUi"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="@dimen/dialog_settings_content_padding"
+                        android:visibility="visible">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Interface &amp; Display"
+                                android:textColor="#0F172A"
+                                android:textSize="@dimen/dialog_settings_title_size"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="3dp"
+                                android:text="Customize application layout, theme, and onscreen clock"
+                                android:textColor="#64748B"
+                                android:textSize="@dimen/dialog_settings_sub_size" />
+
+                            <!-- Card 1: Theme & Visual Style -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/dialog_settings_card_margin_top"
+                                android:background="@drawable/bg_settings_card"
+                                android:orientation="vertical"
+                                android:padding="@dimen/dialog_settings_card_padding">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Theme Mode"
+                                    android:textColor="#0F172A"
+                                    android:textSize="@dimen/dialog_settings_card_title_size"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold" />
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="@dimen/dialog_settings_segment_height"
+                                    android:layout_marginTop="8dp"
+                                    android:background="@drawable/bg_settings_segmented_group"
+                                    android:padding="2dp"
+                                    android:orientation="horizontal">
+
+                                    <Button
+                                        android:id="@+id/btnThemeLight"
+                                        style="?android:attr/borderlessButtonStyle"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:background="@drawable/bg_settings_segment_active"
+                                        android:backgroundTint="@null"
+                                        app:backgroundTint="@null"
+                                        android:text="Light (Default)"
+                                        android:textColor="#0F172A"
+                                        android:textAllCaps="false"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textStyle="bold"
+                                        android:textSize="@dimen/dialog_settings_segment_text_size" />
+
+                                    <Button
+                                        android:id="@+id/btnThemeDark"
+                                        style="?android:attr/borderlessButtonStyle"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:background="@drawable/bg_settings_segment_inactive"
+                                        android:backgroundTint="@null"
+                                        app:backgroundTint="@null"
+                                        android:text="Dark Mode"
+                                        android:textColor="#64748B"
+                                        android:textAllCaps="false"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textSize="@dimen/dialog_settings_segment_text_size" />
+
+                                    <Button
+                                        android:id="@+id/btnThemeSystem"
+                                        style="?android:attr/borderlessButtonStyle"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:background="@drawable/bg_settings_segment_inactive"
+                                        android:backgroundTint="@null"
+                                        app:backgroundTint="@null"
+                                        android:text="Auto System"
+                                        android:textColor="#64748B"
+                                        android:textAllCaps="false"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textSize="@dimen/dialog_settings_segment_text_size" />
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <!-- Card 2: Date & Time Clock Badge -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/dialog_settings_card_margin_top"
+                                android:background="@drawable/bg_settings_card"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                android:padding="@dimen/dialog_settings_card_padding">
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Live Date &amp; Time Clock Badge"
+                                        android:textColor="#0F172A"
+                                        android:textSize="@dimen/dialog_settings_card_title_size"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="2dp"
+                                        android:text="Show digital live clock overlay in top right corner during lectures"
+                                        android:textColor="#64748B"
+                                        android:textSize="@dimen/dialog_settings_card_sub_size" />
+                                </LinearLayout>
+
+                                <androidx.appcompat.widget.SwitchCompat
+                                    android:id="@+id/switchSettingsDateTime"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content" />
+                            </LinearLayout>
+
+                            <!-- Card 3: Fullscreen & Keep Awake -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/dialog_settings_card_margin_top"
+                                android:background="@drawable/bg_settings_card"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                android:padding="@dimen/dialog_settings_card_padding">
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Sticky Immersive Fullscreen"
+                                        android:textColor="#0F172A"
+                                        android:textSize="@dimen/dialog_settings_card_title_size"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="2dp"
+                                        android:text="Hides Android system bars and keeps display awake during classroom use"
+                                        android:textColor="#64748B"
+                                        android:textSize="@dimen/dialog_settings_card_sub_size" />
+                                </LinearLayout>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Active"
+                                    android:textColor="#10B981"
+                                    android:textSize="@dimen/dialog_settings_card_sub_size"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+                    </ScrollView>
+
+                    <!-- ══════════════════════════════════════════════════════════════ -->
+                    <!-- SECTION 2: CANVAS & SLIDES -->
+                    <!-- ══════════════════════════════════════════════════════════════ -->
+                    <ScrollView
+                        android:id="@+id/scrollSectionCanvas"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="@dimen/dialog_settings_content_padding"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Canvas &amp; Slide Mode"
+                                android:textColor="#0F172A"
+                                android:textSize="@dimen/dialog_settings_title_size"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="3dp"
+                                android:text="Configure slide boundaries, page ratio, and infinite canvas behaviors"
+                                android:textColor="#64748B"
+                                android:textSize="@dimen/dialog_settings_sub_size" />
+
+                            <!-- Card 1: Canvas Mode Toggle -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/dialog_settings_card_margin_top"
+                                android:background="@drawable/bg_settings_card"
+                                android:orientation="vertical"
+                                android:padding="@dimen/dialog_settings_card_padding">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Default Canvas Operating Mode"
+                                    android:textColor="#0F172A"
+                                    android:textSize="@dimen/dialog_settings_card_title_size"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold" />
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="@dimen/dialog_settings_segment_height"
+                                    android:layout_marginTop="8dp"
+                                    android:background="@drawable/bg_settings_segmented_group"
+                                    android:padding="2dp"
+                                    android:orientation="horizontal">
+
+                                    <Button
+                                        android:id="@+id/btnModeFixedPage"
+                                        style="?android:attr/borderlessButtonStyle"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:background="@drawable/bg_settings_segment_active"
+                                        android:backgroundTint="@null"
+                                        app:backgroundTint="@null"
+                                        android:text="Fixed Slide 16:9 (Default)"
+                                        android:textColor="#0F172A"
+                                        android:textAllCaps="false"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textStyle="bold"
+                                        android:textSize="@dimen/dialog_settings_segment_text_size" />
+
+                                    <Button
+                                        android:id="@+id/btnModeOpenCanvas"
+                                        style="?android:attr/borderlessButtonStyle"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:background="@drawable/bg_settings_segment_inactive"
+                                        android:backgroundTint="@null"
+                                        app:backgroundTint="@null"
+                                        android:text="Open Infinite Canvas"
+                                        android:textColor="#64748B"
+                                        android:textAllCaps="false"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textSize="@dimen/dialog_settings_segment_text_size" />
+                                </LinearLayout>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="6dp"
+                                    android:text="Fixed Slide mode locks camera to standard presentation slides. Open Canvas allows infinite panning and zooming."
+                                    android:textColor="#64748B"
+                                    android:textSize="@dimen/dialog_settings_card_sub_size" />
+                            </LinearLayout>
+
+                            <!-- Card 2: Slide Size & Aspect Ratio Presets (Visible only in Fixed Slide Mode) -->
+                            <LinearLayout
+                                android:id="@+id/layoutSlideSizeSettings"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/dialog_settings_card_margin_top"
+                                android:background="@drawable/bg_settings_card"
+                                android:orientation="vertical"
+                                android:padding="@dimen/dialog_settings_card_padding">
+
+                                <!-- Match Screen Action Button -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center_vertical"
+                                    android:orientation="horizontal">
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="Screen Fit (Zero White Margin)"
+                                            android:textColor="#0F172A"
+                                            android:textSize="@dimen/dialog_settings_card_title_size"
+                                            android:fontFamily="sans-serif-medium"
+                                            android:textStyle="bold" />
+
+                                        <TextView
+                                            android:id="@+id/tvMatchScreenDesc"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginTop="2dp"
+                                            android:text="Auto-fits this tablet display with zero empty space"
+                                            android:textColor="#64748B"
+                                            android:textSize="@dimen/dialog_settings_card_sub_size" />
+                                    </LinearLayout>
+
+                                    <Button
+                                        android:id="@+id/btnPresetMatchScreen"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="@dimen/dialog_settings_footer_btn_height"
+                                        android:backgroundTint="#0F172A"
+                                        android:paddingHorizontal="10dp"
+                                        android:text="📱 Match Screen"
+                                        android:textColor="#FFFFFF"
+                                        android:textSize="@dimen/dialog_settings_footer_btn_text_size"
+                                        android:textAllCaps="false"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textStyle="bold" />
+                                </LinearLayout>
+
+                                <View
+                                    android:layout_width="match_parent"
+                                    android:layout_height="1dp"
+                                    android:layout_marginVertical="10dp"
+                                    android:background="#E2E8F0" />
+
+                                <!-- Presets Header with + Add Custom Size -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center_vertical"
+                                    android:orientation="horizontal">
+
+                                    <LinearLayout
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="Slide Size Presets"
+                                            android:textColor="#0F172A"
+                                            android:textSize="@dimen/dialog_settings_card_title_size"
+                                            android:fontFamily="sans-serif-medium"
+                                            android:textStyle="bold" />
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginTop="2dp"
+                                            android:text="Standard ratios (16:9, 16:10, 4:3, A4) and custom sizes"
+                                            android:textColor="#64748B"
+                                            android:textSize="@dimen/dialog_settings_card_sub_size" />
+                                    </LinearLayout>
+
+                                    <Button
+                                        android:id="@+id/btnAddCustomPreset"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="@dimen/dialog_settings_footer_btn_height"
+                                        android:backgroundTint="#0F172A"
+                                        android:paddingHorizontal="10dp"
+                                        android:text="+ Add Custom Size"
+                                        android:textColor="#FFFFFF"
+                                        android:textSize="@dimen/dialog_settings_footer_btn_text_size"
+                                        android:textAllCaps="false"
+                                        android:fontFamily="sans-serif-medium" />
+                                </LinearLayout>
+
+                                <!-- Unified Presets Container (Built-in Ratios + Custom Presets) -->
+                                <LinearLayout
+                                    android:id="@+id/llCustomPresetsContainer"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:orientation="vertical" />
+
+                                <TextView
+                                    android:id="@+id/tvNoCustomPresets"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:gravity="center"
+                                    android:padding="6dp"
+                                    android:text="No slide presets available."
+                                    android:textColor="#64748B"
+                                    android:textSize="@dimen/dialog_settings_card_sub_size"
+                                    android:visibility="gone" />
+
+                                <!-- Active Preset Information & Scope Box -->
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:background="@drawable/bg_settings_segmented_group"
+                                    android:orientation="vertical"
+                                    android:padding="10dp">
+
+                                    <TextView
+                                        android:id="@+id/tvActivePresetSummary"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:text="Selected: 16:9 Widescreen (1920 × 1080 px • 1.78:1)"
+                                        android:textColor="#0F172A"
+                                        android:textSize="@dimen/dialog_settings_card_sub_size"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textStyle="bold" />
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="8dp"
+                                        android:orientation="horizontal">
+
+                                        <Button
+                                            android:id="@+id/btnApplyPresetCurrent"
+                                            android:layout_width="0dp"
+                                            android:layout_height="@dimen/dialog_settings_footer_btn_height"
+                                            android:layout_weight="1"
+                                            android:backgroundTint="#0F172A"
+                                            android:text="Apply to Current"
+                                            android:textColor="#FFFFFF"
+                                            android:textAllCaps="false"
+                                            android:fontFamily="sans-serif-medium"
+                                            android:textSize="@dimen/dialog_settings_footer_btn_text_size" />
+
+                                        <Button
+                                            android:id="@+id/btnApplyPresetAll"
+                                            android:layout_width="0dp"
+                                            android:layout_height="@dimen/dialog_settings_footer_btn_height"
+                                            android:layout_marginStart="6dp"
+                                            android:layout_weight="1"
+                                            android:backgroundTint="#0F172A"
+                                            android:text="Apply to All Pages"
+                                            android:textColor="#FFFFFF"
+                                            android:textAllCaps="false"
+                                            android:fontFamily="sans-serif-medium"
+                                            android:textSize="@dimen/dialog_settings_footer_btn_text_size"
+                                            android:textStyle="bold" />
+
+                                        <Button
+                                            android:id="@+id/btnSetPresetDefault"
+                                            android:layout_width="0dp"
+                                            android:layout_height="@dimen/dialog_settings_footer_btn_height"
+                                            android:layout_marginStart="6dp"
+                                            android:layout_weight="1"
+                                            android:backgroundTint="#E2E8F0"
+                                            android:text="★ Set as Default"
+                                            android:textColor="#0F172A"
+                                            android:textAllCaps="false"
+                                            android:fontFamily="sans-serif-medium"
+                                            android:textSize="@dimen/dialog_settings_footer_btn_text_size" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                            </LinearLayout>
+
+                        </LinearLayout>
+                    </ScrollView>
+
+                    <!-- ══════════════════════════════════════════════════════════════ -->
+                    <!-- SECTION 3: PEN & DRAWING TOOLS -->
+                    <!-- ══════════════════════════════════════════════════════════════ -->
+                    <ScrollView
+                        android:id="@+id/scrollSectionPen"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="@dimen/dialog_settings_content_padding"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Pen &amp; Drawing Tools"
+                                android:textColor="#0F172A"
+                                android:textSize="@dimen/dialog_settings_title_size"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="3dp"
+                                android:text="Configure stroke smoothing, scaling behaviors, and eraser defaults"
+                                android:textColor="#64748B"
+                                android:textSize="@dimen/dialog_settings_sub_size" />
+
+                            <!-- Card 1: Stroke Smoothing -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/dialog_settings_card_margin_top"
+                                android:background="@drawable/bg_settings_card"
+                                android:orientation="vertical"
+                                android:padding="@dimen/dialog_settings_card_padding">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Ink Curve Smoothing Level"
+                                    android:textColor="#0F172A"
+                                    android:textSize="@dimen/dialog_settings_card_title_size"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold" />
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="@dimen/dialog_settings_segment_height"
+                                    android:layout_marginTop="8dp"
+                                    android:background="@drawable/bg_settings_segmented_group"
+                                    android:padding="2dp"
+                                    android:orientation="horizontal">
+
+                                    <Button
+                                        android:id="@+id/btnSmoothLow"
+                                        style="?android:attr/borderlessButtonStyle"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:background="@drawable/bg_settings_segment_inactive"
+                                        android:backgroundTint="@null"
+                                        app:backgroundTint="@null"
+                                        android:text="Low (Raw)"
+                                        android:textColor="#64748B"
+                                        android:textAllCaps="false"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textSize="@dimen/dialog_settings_segment_text_size" />
+
+                                    <Button
+                                        android:id="@+id/btnSmoothMed"
+                                        style="?android:attr/borderlessButtonStyle"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:background="@drawable/bg_settings_segment_active"
+                                        android:backgroundTint="@null"
+                                        app:backgroundTint="@null"
+                                        android:text="Balanced (Catmull-Rom)"
+                                        android:textColor="#0F172A"
+                                        android:textAllCaps="false"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textStyle="bold"
+                                        android:textSize="@dimen/dialog_settings_segment_text_size" />
+
+                                    <Button
+                                        android:id="@+id/btnSmoothHigh"
+                                        style="?android:attr/borderlessButtonStyle"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:background="@drawable/bg_settings_segment_inactive"
+                                        android:backgroundTint="@null"
+                                        app:backgroundTint="@null"
+                                        android:text="High (Calligraphy)"
+                                        android:textColor="#64748B"
+                                        android:textAllCaps="false"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textSize="@dimen/dialog_settings_segment_text_size" />
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <!-- Card 2: Symmetrical Scaling -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/dialog_settings_card_margin_top"
+                                android:background="@drawable/bg_settings_card"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                android:padding="@dimen/dialog_settings_card_padding">
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Symmetrical Corner Scaling"
+                                        android:textColor="#0F172A"
+                                        android:textSize="@dimen/dialog_settings_card_title_size"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="2dp"
+                                        android:text="Dragging selection corner handles scales uniformly; edge centers stretch 1D"
+                                        android:textColor="#64748B"
+                                        android:textSize="@dimen/dialog_settings_card_sub_size" />
+                                </LinearLayout>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Enabled"
+                                    android:textColor="#10B981"
+                                    android:textSize="@dimen/dialog_settings_card_sub_size"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+                    </ScrollView>
+
+                    <!-- ══════════════════════════════════════════════════════════════ -->
+                    <!-- SECTION 4: FILE & SLIDE IMPORT -->
+                    <!-- ══════════════════════════════════════════════════════════════ -->
+                    <ScrollView
+                        android:id="@+id/scrollSectionFile"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="@dimen/dialog_settings_content_padding"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="File &amp; Slide Import"
+                                android:textColor="#0F172A"
+                                android:textSize="@dimen/dialog_settings_title_size"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="3dp"
+                                android:text="Control how PPTX, PPT, and PDF pages are placed on whiteboard slides"
+                                android:textColor="#64748B"
+                                android:textSize="@dimen/dialog_settings_sub_size" />
+
+                            <!-- Card 1: Default Import Mode -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/dialog_settings_card_margin_top"
+                                android:background="@drawable/bg_settings_card"
+                                android:orientation="vertical"
+                                android:padding="@dimen/dialog_settings_card_padding">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Default PPT / PDF Slide Import Mode"
+                                    android:textColor="#0F172A"
+                                    android:textSize="@dimen/dialog_settings_card_title_size"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold" />
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="@dimen/dialog_settings_segment_height"
+                                    android:layout_marginTop="8dp"
+                                    android:background="@drawable/bg_settings_segmented_group"
+                                    android:padding="2dp"
+                                    android:orientation="horizontal">
+
+                                    <Button
+                                        android:id="@+id/btnSettingImportBg"
+                                        style="?android:attr/borderlessButtonStyle"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:background="@drawable/bg_settings_segment_active"
+                                        android:backgroundTint="@null"
+                                        app:backgroundTint="@null"
+                                        android:text="Background (Default)"
+                                        android:textColor="#0F172A"
+                                        android:textAllCaps="false"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textStyle="bold"
+                                        android:textSize="@dimen/dialog_settings_segment_text_size" />
+
+                                    <Button
+                                        android:id="@+id/btnSettingImportObj"
+                                        style="?android:attr/borderlessButtonStyle"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:background="@drawable/bg_settings_segment_inactive"
+                                        android:backgroundTint="@null"
+                                        app:backgroundTint="@null"
+                                        android:text="Object (Movable)"
+                                        android:textColor="#64748B"
+                                        android:textAllCaps="false"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textSize="@dimen/dialog_settings_segment_text_size" />
+                                </LinearLayout>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="6dp"
+                                    android:text="Background mode sets each slide as fixed paper background. Object mode imports each page as selectable image."
+                                    android:textColor="#64748B"
+                                    android:textSize="@dimen/dialog_settings_card_sub_size" />
+                            </LinearLayout>
+
+                            <!-- Card 2: Auto-Save & Crash Recovery -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/dialog_settings_card_margin_top"
+                                android:background="@drawable/bg_settings_card"
+                                android:orientation="vertical"
+                                android:padding="@dimen/dialog_settings_card_padding">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Auto-Save &amp; Snapshot Recovery"
+                                    android:textColor="#0F172A"
+                                    android:textSize="@dimen/dialog_settings_card_title_size"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="Background Sync Interval: Every 30 seconds"
+                                    android:textColor="#64748B"
+                                    android:textSize="@dimen/dialog_settings_card_sub_size" />
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="@dimen/dialog_settings_segment_height"
+                                    android:layout_marginTop="8dp"
+                                    android:background="@drawable/bg_settings_segmented_group"
+                                    android:padding="2dp"
+                                    android:orientation="horizontal">
+
+                                    <Button
+                                        android:id="@+id/btnAutoSave30s"
+                                        style="?android:attr/borderlessButtonStyle"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:background="@drawable/bg_settings_segment_active"
+                                        android:backgroundTint="@null"
+                                        app:backgroundTint="@null"
+                                        android:text="30 Seconds"
+                                        android:textColor="#0F172A"
+                                        android:textAllCaps="false"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textStyle="bold"
+                                        android:textSize="@dimen/dialog_settings_segment_text_size" />
+
+                                    <Button
+                                        android:id="@+id/btnAutoSave60s"
+                                        style="?android:attr/borderlessButtonStyle"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:background="@drawable/bg_settings_segment_inactive"
+                                        android:backgroundTint="@null"
+                                        app:backgroundTint="@null"
+                                        android:text="60 Seconds"
+                                        android:textColor="#64748B"
+                                        android:textAllCaps="false"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textSize="@dimen/dialog_settings_segment_text_size" />
+
+                                    <Button
+                                        android:id="@+id/btnAutoSaveOff"
+                                        style="?android:attr/borderlessButtonStyle"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:background="@drawable/bg_settings_segment_inactive"
+                                        android:backgroundTint="@null"
+                                        app:backgroundTint="@null"
+                                        android:text="Manual Only"
+                                        android:textColor="#64748B"
+                                        android:textAllCaps="false"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textSize="@dimen/dialog_settings_segment_text_size" />
+                                </LinearLayout>
+                            </LinearLayout>
+
+                        </LinearLayout>
+                    </ScrollView>
+
+                    <!-- ══════════════════════════════════════════════════════════════ -->
+                    <!-- SECTION 5: TOUCH & SMART BOARD -->
+                    <!-- ══════════════════════════════════════════════════════════════ -->
+                    <ScrollView
+                        android:id="@+id/scrollSectionTouch"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="@dimen/dialog_settings_content_padding"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Touch &amp; Smart Board"
+                                android:textColor="#0F172A"
+                                android:textSize="@dimen/dialog_settings_title_size"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="3dp"
+                                android:text="Hardware touchscreen and IR frame calibration settings"
+                                android:textColor="#64748B"
+                                android:textSize="@dimen/dialog_settings_sub_size" />
+
+                            <!-- Card 1: Touch Screen Calibration -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/dialog_settings_card_margin_top"
+                                android:background="@drawable/bg_settings_card"
+                                android:orientation="vertical"
+                                android:padding="@dimen/dialog_settings_card_padding">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="IR Optical Frame &amp; Multi-Touch Protocol"
+                                    android:textColor="#0F172A"
+                                    android:textSize="@dimen/dialog_settings_card_title_size"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="120Hz/240Hz unbuffered touch batching enabled for zero latency"
+                                    android:textColor="#64748B"
+                                    android:textSize="@dimen/dialog_settings_card_sub_size" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:text="Hardware Status: Calibrated (Android MotionEvent Type-B Direct)"
+                                    android:textColor="#10B981"
+                                    android:textSize="@dimen/dialog_settings_card_sub_size"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+
+                            <!-- Card 2: GPU Renderer -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/dialog_settings_card_margin_top"
+                                android:background="@drawable/bg_settings_card"
+                                android:orientation="vertical"
+                                android:padding="@dimen/dialog_settings_card_padding">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Graphics Engine"
+                                    android:textColor="#0F172A"
+                                    android:textSize="@dimen/dialog_settings_card_title_size"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="Backend: OpenGL ES 3.0 Native Pipeline with EGL Double Buffering"
+                                    android:textColor="#64748B"
+                                    android:textSize="@dimen/dialog_settings_card_sub_size" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+                    </ScrollView>
+
+                    <!-- ══════════════════════════════════════════════════════════════ -->
+                    <!-- SECTION 6: STORAGE & ABOUT -->
+                    <!-- ══════════════════════════════════════════════════════════════ -->
+                    <ScrollView
+                        android:id="@+id/scrollSectionAbout"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="@dimen/dialog_settings_content_padding"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Storage &amp; About"
+                                android:textColor="#0F172A"
+                                android:textSize="@dimen/dialog_settings_title_size"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="3dp"
+                                android:text="Storage permission status, cache controls, and version information"
+                                android:textColor="#64748B"
+                                android:textSize="@dimen/dialog_settings_sub_size" />
+
+                            <!-- Card 0: Storage & File Manager Provider -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/dialog_settings_card_margin_top"
+                                android:background="@drawable/bg_settings_card"
+                                android:orientation="vertical"
+                                android:padding="@dimen/dialog_settings_card_padding">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Storage &amp; File Manager System"
+                                    android:textColor="#0F172A"
+                                    android:textSize="@dimen/dialog_settings_card_title_size"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:text="Choose between the built-in whiteboard explorer or Android system file manager"
+                                    android:textColor="#64748B"
+                                    android:textSize="@dimen/dialog_settings_card_sub_size" />
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="@dimen/dialog_settings_segment_height"
+                                    android:layout_marginTop="8dp"
+                                    android:background="@drawable/bg_settings_segmented_group"
+                                    android:padding="2dp"
+                                    android:orientation="horizontal">
+
+                                    <Button
+                                        android:id="@+id/btnProviderBuiltIn"
+                                        style="?android:attr/borderlessButtonStyle"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:background="@drawable/bg_settings_segment_active"
+                                        android:backgroundTint="@null"
+                                        app:backgroundTint="@null"
+                                        android:text="Built-in File Manager (Default)"
+                                        android:textColor="#0F172A"
+                                        android:textAllCaps="false"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textStyle="bold"
+                                        android:textSize="@dimen/dialog_settings_segment_text_size" />
+
+                                    <Button
+                                        android:id="@+id/btnProviderSystem"
+                                        style="?android:attr/borderlessButtonStyle"
+                                        android:layout_width="0dp"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:background="@drawable/bg_settings_segment_inactive"
+                                        android:backgroundTint="@null"
+                                        app:backgroundTint="@null"
+                                        android:text="Android File Manager (SAF)"
+                                        android:textColor="#64748B"
+                                        android:textAllCaps="false"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textSize="@dimen/dialog_settings_segment_text_size" />
+                                </LinearLayout>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="6dp"
+                                    android:text="Built-in mode opens our high-speed explorer with PDF previews &amp; slide decks. Android mode opens system file picker with Open, Save, and Export dialogs."
+                                    android:textColor="#64748B"
+                                    android:textSize="@dimen/dialog_settings_card_sub_size" />
+                            </LinearLayout>
+
+                            <!-- Card 1: Storage Permission Status -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/dialog_settings_card_margin_top"
+                                android:background="@drawable/bg_settings_card"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal"
+                                android:padding="@dimen/dialog_settings_card_padding">
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="All Files Access Permission"
+                                        android:textColor="#0F172A"
+                                        android:textSize="@dimen/dialog_settings_card_title_size"
+                                        android:fontFamily="sans-serif-medium"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="2dp"
+                                        android:text="Required to browse USB drives, SD cards, and internal folders"
+                                        android:textColor="#64748B"
+                                        android:textSize="@dimen/dialog_settings_card_sub_size" />
+                                </LinearLayout>
+
+                                <Button
+                                    android:id="@+id/btnSettingsManageStorage"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="@dimen/dialog_settings_footer_btn_height"
+                                    android:backgroundTint="#0F172A"
+                                    android:paddingHorizontal="12dp"
+                                    android:text="Manage"
+                                    android:textColor="#FFFFFF"
+                                    android:textAllCaps="false"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textSize="@dimen/dialog_settings_footer_btn_text_size" />
+                            </LinearLayout>
+
+                            <!-- Card 2: App & Engine Information -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/dialog_settings_card_margin_top"
+                                android:background="@drawable/bg_settings_card"
+                                android:orientation="vertical"
+                                android:padding="@dimen/dialog_settings_card_padding">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="OpenWhiteBoard Pro"
+                                    android:textColor="#0F172A"
+                                    android:textSize="@dimen/dialog_settings_card_title_size"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="3dp"
+                                    android:text="Version 1.0.0 (Smart Board Enterprise Edition)\nC++ Native Core with GLES 3.0 Renderer"
+                                    android:textColor="#64748B"
+                                    android:textSize="@dimen/dialog_settings_card_sub_size" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+                    </ScrollView>
+
+                </FrameLayout>
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E2E8F0" />
+
+            <!-- Window Footer Bar -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dialog_settings_footer_height"
+                android:background="#F8FAFC"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/dialog_settings_footer_padding">
+
+                <Button
+                    android:id="@+id/btnSettingsReset"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dialog_settings_footer_btn_height"
+                    android:text="Reset to Defaults"
+                    android:textColor="#64748B"
+                    android:textAllCaps="false"
+                    android:fontFamily="sans-serif-medium"
+                    android:textSize="@dimen/dialog_settings_footer_btn_text_size" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <Button
+                    android:id="@+id/btnCloseSettings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/dialog_settings_footer_btn_height"
+                    android:backgroundTint="#0F172A"
+                    android:paddingHorizontal="14dp"
+                    android:text="Save &amp; Close"
+                    android:textColor="#FFFFFF"
+                    android:textAllCaps="false"
+                    android:fontFamily="sans-serif-medium"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/dialog_settings_footer_btn_text_size" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </FrameLayout>
+ 
+    <!-- 10B. CUSTOM SLIDE SIZE & PRESET MODAL DIALOG -->
+    <FrameLayout
+        android:id="@+id/modalCustomSlideSizeOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#A0000000"
+        android:clickable="true"
+        android:elevation="40dp"
+        android:focusable="true"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <include
+            android:id="@+id/incCustomSlideSizeDialog"
+            layout="@layout/dialog_custom_slide_size"
+            android:layout_width="@dimen/dialog_custom_slide_width"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
+    </FrameLayout>
+
+    <!-- 10. INFINITE COLOR WHEEL PICKER OVERLAY MODAL (Photoshop/Procreate Style) -->
+    <FrameLayout
+        android:id="@+id/modalColorPickerOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:clickable="true"
+        android:elevation="24dp"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="@dimen/dialog_color_picker_width"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_floating_bar"
+            android:elevation="20dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingVertical="20dp">
+
+            <!-- Title Header -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hexagon Color Palette"
+                android:textColor="#1C1C1E"
+                android:textSize="18sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Tap any hexagon cell or drag across the spectrum"
+                android:textColor="#8E8E93"
+                android:textSize="12sp" />
+
+            <!-- Authentic 91-Cell Hexagonal Honeycomb Matrix View -->
+            <com.cruse.openwhiteboard.ui.ColorWheelView
+                android:id="@+id/colorWheelCanvas"
+                android:layout_width="@dimen/dialog_color_picker_canvas_width"
+                android:layout_height="@dimen/dialog_color_picker_canvas_height"
+                android:layout_marginTop="14dp" />
+
+            <!-- Brightness / Luminosity Slider -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Luminance"
+                    android:textColor="#8E8E93"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium" />
+
+                <SeekBar
+                    android:id="@+id/seekBarVal"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:max="100"
+                    android:progress="100" />
+            </LinearLayout>
+
+            <!-- Live Color Preview & HEX Code Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <View
+                    android:id="@+id/viewLiveColorPreview"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_color_black" />
+
+                <EditText
+                    android:id="@+id/etHexInput"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:background="#F2F2F7"
+                    android:hint="#000000"
+                    android:inputType="textCapCharacters"
+                    android:maxLength="7"
+                    android:paddingHorizontal="12dp"
+                    android:textColor="#1C1C1E"
+                    android:textSize="14sp"
+                    android:fontFamily="monospace"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Action Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:gravity="end"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btnCancelColorPicker"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cancel"
+                    android:textColor="#8E8E93" />
+
+                <Button
+                    android:id="@+id/btnApplyCustomColor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:backgroundTint="#0A84FF"
+                    android:text="Apply Color"
+                    android:textColor="#FFFFFF" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- 10C. DOCUMENT & SLIDES IMPORT LOADING PROGRESS OVERLAY -->
+    <FrameLayout
+        android:id="@+id/modalImportProgressOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#90000000"
+        android:clickable="true"
+        android:elevation="45dp"
+        android:focusable="true"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="@dimen/dialog_export_choice_width"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_file_manager_window"
+            android:clipToOutline="true"
+            android:elevation="20dp"
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingVertical="22dp">
+
+            <!-- Header Row: Icon + Title -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:src="@drawable/ic_pdf_badge" />
+
+                <TextView
+                    android:id="@+id/tvImportProgressTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Importing Document..."
+                    android:textColor="#0F172A"
+                    android:textSize="17sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvImportProgressFileName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:ellipsize="middle"
+                android:singleLine="true"
+                android:text="document.pdf"
+                android:textColor="#64748B"
+                android:textSize="13sp" />
+
+            <!-- Counter & Percentage Row -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp">
+
+                <TextView
+                    android:id="@+id/tvImportProgressCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Preparing pages..."
+                    android:textColor="#0F172A"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvImportProgressPercent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="0%"
+                    android:textColor="#2563EB"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+            <!-- Horizontal Material Progress Bar -->
+            <ProgressBar
+                android:id="@+id/progressBarImport"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginTop="8dp"
+                android:max="100"
+                android:progress="0"
+                android:progressDrawable="@drawable/bg_progress_bar_custom" />
+
+            <!-- Status / Subtitle text -->
+            <TextView
+                android:id="@+id/tvImportProgressStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Rendering high-resolution slides..."
+                android:textColor="#94A3B8"
+                android:textSize="12sp" />
+
+            <!-- Cancel Button -->
+            <Button
+                android:id="@+id/btnCancelImport"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_gravity="end"
+                android:layout_marginTop="12dp"
+                android:backgroundTint="#F1F5F9"
+                android:fontFamily="sans-serif-medium"
+                android:text="Cancel"
+                android:textColor="#64748B"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- 10D. FLOATING BACKGROUND SLIDES STREAMING BADGE -->
+    <LinearLayout
+        android:id="@+id/layoutStreamLoadingBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_floating_bar"
+        android:elevation="20dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/pbStreamSpinner"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:indeterminateTint="#0A84FF" />
+
+        <TextView
+            android:id="@+id/tvStreamBadgeStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Loading slide 2 of 20 in background..."
+            android:textColor="#1C1C1E"
+            android:textSize="13sp" />
+
+        <ProgressBar
+            android:id="@+id/pbStreamLinear"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="80dp"
+            android:layout_height="6dp"
+            android:layout_marginStart="12dp"
+            android:max="100"
+            android:progress="0"
+            android:progressDrawable="@drawable/bg_progress_bar_custom" />
+
+        <TextView
+            android:id="@+id/tvStreamBadgePercent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="0%"
+            android:textColor="#0A84FF"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btnCancelStreamLoading"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="12dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Cancel Background Loading"
+            android:padding="4dp"
+            android:src="@drawable/ic_close"
+            app:tint="#8E8E93" />
+    </LinearLayout>
+
+    <!-- 10E. CENTERED SLEEK PAGE BUFFERING / ROTATING WHEEL LOADER -->
+    <LinearLayout
+        android:id="@+id/layoutCanvasPageLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:background="@drawable/bg_floating_bar"
+        android:elevation="24dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingHorizontal="32dp"
+        android:paddingVertical="20dp"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/pbCanvasPageSpinner"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:indeterminate="true"
+            android:indeterminateTint="#0A84FF" />
+
+        <TextView
+            android:id="@+id/tvCanvasPageLoadingTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Loading Page..."
+            android:textColor="#1C1C1E"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvCanvasPageLoadingSubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:fontFamily="sans-serif"
+            android:text="Rendering high quality slide"
+            android:textColor="#8E8E93"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- 11. TOP-LEVEL FLOATING SELECTION OVERLAY & TOOLTIPS (Highest Z-Order) -->
+    <LinearLayout
+        android:id="@+id/layoutSelectionContextMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_floating_bar"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <!-- [🔒] Lock -->
+        <ImageButton
+            android:id="@+id/btnLockSelection"
+            android:layout_width="@dimen/selection_btn_size"
+            android:layout_height="@dimen/selection_btn_size"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Lock Selection"
+            android:padding="@dimen/selection_btn_padding"
+            android:src="@drawable/ic_lock"
+            app:tint="#4A4A4F" />
+
+        <View
+            android:id="@+id/dividerLock1"
+            android:layout_width="1dp"
+            android:layout_height="20dp"
+            android:layout_marginHorizontal="6dp"
+            android:background="#D1D1D6" />
+
+        <!-- [🎨] Color Circle (Single circular color button) -->
+        <FrameLayout
+            android:id="@+id/btnColorSelection"
+            android:layout_width="@dimen/selection_btn_size"
+            android:layout_height="@dimen/selection_btn_size"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?selectableItemBackgroundBorderless">
+            <View
+                android:id="@+id/viewSelectionColorDot"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:clickable="false"
+                android:background="@drawable/bg_color_black" />
+        </FrameLayout>
+
+        <View
+            android:id="@+id/dividerLock2"
+            android:layout_width="1dp"
+            android:layout_height="20dp"
+            android:layout_marginHorizontal="6dp"
+            android:background="#D1D1D6" />
+
+        <!-- [📋] Copy -->
+        <ImageButton
+            android:id="@+id/btnCopySelection"
+            android:layout_width="@dimen/selection_btn_size"
+            android:layout_height="@dimen/selection_btn_size"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Copy"
+            android:padding="@dimen/selection_btn_padding"
+            android:src="@drawable/ic_copy"
+            app:tint="#4A4A4F" />
+
+        <!-- [📥] Paste -->
+        <ImageButton
+            android:id="@+id/btnPasteSelection"
+            android:layout_width="@dimen/selection_btn_size"
+            android:layout_height="@dimen/selection_btn_size"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Paste"
+            android:padding="@dimen/selection_btn_padding"
+            android:src="@drawable/ic_paste"
+            app:tint="#4A4A4F" />
+
+        <View
+            android:id="@+id/dividerLock3"
+            android:layout_width="1dp"
+            android:layout_height="20dp"
+            android:layout_marginHorizontal="6dp"
+            android:background="#D1D1D6" />
+
+        <!-- [📑] Duplicate -->
+        <ImageButton
+            android:id="@+id/btnDuplicateSelection"
+            android:layout_width="@dimen/selection_btn_size"
+            android:layout_height="@dimen/selection_btn_size"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Duplicate"
+            android:padding="@dimen/selection_btn_padding"
+            android:src="@drawable/ic_duplicate"
+            app:tint="#4A4A4F" />
+
+        <View
+            android:id="@+id/dividerLock4"
+            android:layout_width="1dp"
+            android:layout_height="20dp"
+            android:layout_marginHorizontal="6dp"
+            android:background="#D1D1D6" />
+
+        <!-- [↔️] Flip Horizontal -->
+        <ImageButton
+            android:id="@+id/btnFlipHSelection"
+            android:layout_width="@dimen/selection_btn_size"
+            android:layout_height="@dimen/selection_btn_size"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Flip Horizontal"
+            android:padding="@dimen/selection_btn_padding"
+            android:src="@drawable/ic_flip_horizontal"
+            app:tint="#4A4A4F" />
+
+        <!-- [↕️] Flip Vertical -->
+        <ImageButton
+            android:id="@+id/btnFlipVSelection"
+            android:layout_width="@dimen/selection_btn_size"
+            android:layout_height="@dimen/selection_btn_size"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Flip Vertical"
+            android:padding="@dimen/selection_btn_padding"
+            android:src="@drawable/ic_flip_vertical"
+            app:tint="#4A4A4F" />
+
+        <View
+            android:id="@+id/dividerLock5"
+            android:layout_width="1dp"
+            android:layout_height="20dp"
+            android:layout_marginHorizontal="6dp"
+            android:background="#D1D1D6" />
+
+        <!-- [📑/📚] Align / Order -->
+        <ImageButton
+            android:id="@+id/btnAlignSelection"
+            android:layout_width="@dimen/selection_btn_size"
+            android:layout_height="@dimen/selection_btn_size"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Align Layer Order"
+            android:padding="@dimen/selection_btn_padding"
+            android:src="@drawable/ic_align_order"
+            app:tint="#4A4A4F" />
+
+        <View
+            android:id="@+id/dividerLock6"
+            android:layout_width="1dp"
+            android:layout_height="20dp"
+            android:layout_marginHorizontal="6dp"
+            android:background="#D1D1D6" />
+
+        <!-- [🗑️] Delete -->
+        <ImageButton
+            android:id="@+id/btnDeleteSelected"
+            android:layout_width="@dimen/selection_btn_size"
+            android:layout_height="@dimen/selection_btn_size"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Delete"
+            android:padding="@dimen/selection_btn_padding"
+            android:src="@drawable/ic_trash"
+            app:tint="#FF453A" />
+
+    </LinearLayout>
+
+    <!-- Align / Layer Order Floating Dropdown Menu -->
+    <LinearLayout
+        android:id="@+id/layoutAlignDropdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_floating_bar"
+        android:elevation="6dp"
+        android:orientation="vertical"
+        android:paddingHorizontal="6dp"
+        android:paddingVertical="6dp"
+        android:visibility="gone">
+
+        <!-- 1. Bring to Front -->
+        <LinearLayout
+            android:id="@+id/btnAlignBringToFront"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:background="?selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="10dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_bring_front" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Bring to Front"
+                android:textColor="#1C1C1E"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="3dp"
+            android:background="#E5E5EA" />
+
+        <!-- 2. Send Backward -->
+        <LinearLayout
+            android:id="@+id/btnAlignSendBackward"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:background="?selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="10dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_send_backward" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Send Backward"
+                android:textColor="#1C1C1E"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="3dp"
+            android:background="#E5E5EA" />
+
+        <!-- 3. Send to Back -->
+        <LinearLayout
+            android:id="@+id/btnAlignSendToBack"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:background="?selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="10dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_send_back" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="Send to Back"
+                android:textColor="#1C1C1E"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Tap-to-Paste Floating Popup Tooltip (Appears when clicking anywhere on canvas with Selection Tool & active clipboard) -->
+    <LinearLayout
+        android:id="@+id/layoutTapPastePopup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_floating_bar"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="18dp"
+        android:paddingBottom="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_paste"
+            app:tint="#1C1C1E" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="Paste"
+            android:textColor="#1C1C1E"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</RelativeLayout>

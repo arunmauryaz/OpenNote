@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardPageRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="3dp"
+    android:background="@drawable/bg_page_card"
+    android:orientation="vertical"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- 16:9 Thumbnail Image Container -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="88dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="#FFFFFF"
+        android:layout_margin="2.5dp">
+
+        <ImageView
+            android:id="@+id/ivPageThumb"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter"
+            android:background="#FFFFFF" />
+
+    </androidx.cardview.widget.CardView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E5E5EA" />
+
+    <!-- Card Footer: Page Number, Select Checkbox, 3-Dots Menu -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="28dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp">
+
+        <TextView
+            android:id="@+id/tvCardPageNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1"
+            android:textColor="#1C1C1E"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <!-- Checkbox / Selection Circle -->
+        <ImageView
+            android:id="@+id/ivPageSelectCheck"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:padding="2dp"
+            android:src="@drawable/ic_check_circle_outline" />
+
+        <!-- 3-Dots Context Menu -->
+        <ImageButton
+            android:id="@+id/btnPageCardMore"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginStart="3dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:padding="2dp"
+            android:src="@drawable/ic_more_horiz" />
+
+    </LinearLayout>
+
+</LinearLayout>

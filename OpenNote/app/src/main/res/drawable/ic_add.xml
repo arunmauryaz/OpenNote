@@ -1,0 +1,16 @@
+﻿<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="28"
+    android:viewportHeight="28">
+
+    <!-- Vibrant Blue Circle Badge -->
+    <path
+        android:fillColor="#0A84FF"
+        android:pathData="M14,14 m-11,0 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0" />
+
+    <!-- Pure White Plus Symbol -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M13,8 L15,8 L15,13 L20,13 L20,15 L15,15 L15,20 L13,20 L13,15 L8,15 L8,13 L13,13 Z" />
+</vector>

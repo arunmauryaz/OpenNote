@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="28"
+    android:viewportHeight="28">
+
+    <!-- Clockwise (Right) Redo Arrow -->
+    <path
+        android:fillColor="#4F46E5"
+        android:pathData="M15,6 C9.5,6 5,10.5 5,16 C5,21.5 9.5,26 15,26 C18.8,26 22.1,23.9 23.8,20.7 L21.2,19.2 C19.9,21.6 17.6,23 15,23 C11.1,23 8,19.9 8,16 C8,12.1 11.1,9 15,9 C18,9 20.6,10.9 21.6,13.6 L18.5,13.6 L23,18.5 L27.5,13.6 L24.6,13.6 C23.5,9.2 19.7,6 15,6 Z" />
+
+    <!-- Redo Arrowhead Highlight -->
+    <path
+        android:fillColor="#818CF8"
+        android:pathData="M23,18.5 L27.5,13.6 L18.5,13.6 Z" />
+</vector>

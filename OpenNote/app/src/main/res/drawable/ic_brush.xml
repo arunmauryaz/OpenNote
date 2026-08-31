@@ -1,0 +1,26 @@
+﻿<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="28"
+    android:viewportHeight="28">
+
+    <!-- Brush Handle (Rich Cherry Wood) -->
+    <path
+        android:fillColor="#8D5B4C"
+        android:pathData="M23,3 L25,5 L14,16 L12,14 Z" />
+
+    <!-- Silver Ferrule -->
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M14,16 L12,14 L9,17 L11,19 Z" />
+
+    <!-- Bristles / Tip (Vibrant Crimson & Violet) -->
+    <path
+        android:fillColor="#E11D48"
+        android:pathData="M9,17 C9,17 7,18 5,21 C3,24 3,25 3,25 C3,25 4,25 7,23 C10,21 11,19 11,19 Z" />
+
+    <!-- Paint Drop at Tip (Cyan Accent) -->
+    <path
+        android:fillColor="#06B6D4"
+        android:pathData="M4.5,23.5 C4.5,23.5 3.5,24.5 3,25 C3.5,24.5 4.5,23.5 4.5,23.5 Z" />
+</vector>

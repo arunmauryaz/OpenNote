@@ -1,0 +1,46 @@
+﻿<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="28dp"
+    android:height="28dp"
+    android:viewportWidth="28"
+    android:viewportHeight="28">
+
+    <!-- Pen Body (Golden Amber / Orange) -->
+    <path
+        android:fillColor="#FF9500"
+        android:pathData="M7.5,16.5 L16.5,7.5 L20.5,11.5 L11.5,20.5 Z" />
+
+    <!-- Pen Body Shadow / 3D facet -->
+    <path
+        android:fillColor="#E07000"
+        android:pathData="M9.5,18.5 L18.5,9.5 L20.5,11.5 L11.5,20.5 Z" />
+
+    <!-- Metallic Collar -->
+    <path
+        android:fillColor="#D1D5DB"
+        android:pathData="M5.5,18.5 L7.5,16.5 L11.5,20.5 L9.5,22.5 Z" />
+
+    <!-- Pen Tip / Nib (Dark Graphite) -->
+    <path
+        android:fillColor="#374151"
+        android:pathData="M3.2,24.8 C3.0,24.6 3.0,24.2 3.2,24.0 L5.5,18.5 L9.5,22.5 L4.0,24.8 C3.7,24.9 3.4,24.9 3.2,24.8 Z" />
+
+    <!-- Nib Tip Highlight -->
+    <path
+        android:fillColor="#111827"
+        android:pathData="M3.2,24.8 L5.0,23.0 L4.0,24.8 Z" />
+
+    <!-- Pen Cap / Top Accent (Coral Pink / Eraser) -->
+    <path
+        android:fillColor="#FF453A"
+        android:pathData="M16.5,7.5 L20.5,3.5 C21.3,2.7 22.7,2.7 23.5,3.5 L24.5,4.5 C25.3,5.3 25.3,6.7 24.5,7.5 L20.5,11.5 Z" />
+
+    <!-- Pen Cap Silver Ring -->
+    <path
+        android:fillColor="#9CA3AF"
+        android:pathData="M16.0,8.0 L17.5,6.5 L21.5,10.5 L20.0,12.0 Z" />
+
+    <!-- Highlight line along the body -->
+    <path
+        android:fillColor="#FFD60A"
+        android:pathData="M8.5,16.0 L17.0,7.5 L17.8,8.3 L9.3,16.8 Z" />
+</vector>

@@ -1,0 +1,21 @@
+﻿<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:fillColor="#38BDF8"
+      android:pathData="M12,12 m-9,0 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0" />
+  <path
+      android:fillColor="#0284C7"
+      android:strokeColor="#0369A1"
+      android:strokeWidth="1.0"
+      android:pathData="M12,12 m-9,0 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0" />
+  <!-- Specular Light -->
+  <path
+      android:fillColor="#BAE6FD"
+      android:pathData="M9,8 m-3.5,0 a3.5,3.5 0 1,0 7,0 a3.5,3.5 0 1,0 -7,0" />
+  <path
+      android:fillColor="#FFFFFF"
+      android:pathData="M8,7 m-1.5,0 a1.5,1.5 0 1,0 3,0 a1.5,1.5 0 1,0 -3,0" />
+</vector>

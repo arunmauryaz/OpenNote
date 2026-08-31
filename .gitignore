@@ -1,0 +1,79 @@
+# ====================================================================
+# OpenBoard / Open_Note Root .gitignore
+# ====================================================================
+
+# Built-in Android & Gradle Build Artifacts
+.gradle/
+build/
+**/build/
+**/.cxx/
+**/.kotlin/
+bin/
+out/
+target/
+
+# Package & Output Binaries
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+
+# C / C++ Compiled Native Libraries and Objects
+*.so
+*.o
+*.obj
+*.a
+*.lib
+*.dll
+*.dylib
+*.exe
+*.ninja
+*.cmake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+
+# Local Android Studio & SDK Configuration
+local.properties
+.attach_pid*
+
+# IDE & Editor Files
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.project
+.classpath
+.settings/
+*.swp
+*~
+
+# Keystores, Certificates & Secrets
+*.jks
+*.keystore
+*.key
+*.p12
+*.pem
+*.env
+*.env.*
+google-services.json
+secrets.properties
+
+# OS-Specific Cache & Metadata
+Thumbs.db
+desktop.ini
+.DS_Store
+.Spotlight-V100
+.Trashes
+
+# Testing Dumps & Temporary Captures in Root
+/*.png
+/*.xml
+/*.pdf
+/*.log
+!/assets/
+!/assets/**
+.agents/
+scratch/
