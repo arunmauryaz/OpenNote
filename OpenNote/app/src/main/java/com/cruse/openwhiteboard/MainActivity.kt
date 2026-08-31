@@ -1421,56 +1421,56 @@ class MainActivity : AppCompatActivity(), EngineCallbacksInterface, FileManagerD
         colorRed    = findViewById(R.id.colorRed)
 
         // ── Main Tool Dock Selection ──────────────────────────────────────────
-        btnPen.setOnClickListener {
+        btnPen.setSafeOnClickListener {
             if (activeTool == ToolType.PEN && flyoutPen.visibility == View.VISIBLE) {
-                flyoutPen.visibility = View.GONE
+                hideFlyoutAnimated(flyoutPen)
             } else {
+                closeFlyouts(except = flyoutPen)
                 selectTool(ToolType.PEN, btnPen)
-                flyoutPen.visibility = View.VISIBLE
-                flyoutEraser.visibility = View.GONE
-                flyoutShapes.visibility = View.GONE
-                flyoutBackground.visibility = View.GONE
+                showFlyoutAnimated(flyoutPen)
             }
         }
 
-        btnEraser.setOnClickListener {
+        btnEraser.setSafeOnClickListener {
             if (activeTool == ToolType.ERASER_PIXEL && flyoutEraser.visibility == View.VISIBLE) {
-                flyoutEraser.visibility = View.GONE
+                hideFlyoutAnimated(flyoutEraser)
                 cardEraserSizeSlider.visibility = View.GONE
             } else {
+                closeFlyouts(except = flyoutEraser)
                 selectTool(ToolType.ERASER_PIXEL, btnEraser)
-                flyoutEraser.visibility = View.VISIBLE
-                flyoutPen.visibility = View.GONE
-                flyoutShapes.visibility = View.GONE
-                flyoutBackground.visibility = View.GONE
+                showFlyoutAnimated(flyoutEraser)
             }
         }
 
-        btnShapes.setOnClickListener {
+        btnShapes.setSafeOnClickListener {
             if (activeTool == ToolType.SHAPE && flyoutShapes.visibility == View.VISIBLE) {
-                flyoutShapes.visibility = View.GONE
+                hideFlyoutAnimated(flyoutShapes)
             } else {
+                closeFlyouts(except = flyoutShapes)
                 selectTool(ToolType.SHAPE, btnShapes)
-                flyoutShapes.visibility = View.VISIBLE
-                flyoutPen.visibility = View.GONE
-                flyoutEraser.visibility = View.GONE
-                cardEraserSizeSlider.visibility = View.GONE
-                flyoutBackground.visibility = View.GONE
+                showFlyoutAnimated(flyoutShapes)
             }
         }
 
-        btnSelect.setOnClickListener { selectTool(ToolType.SELECTION, btnSelect); closeFlyouts() }
-        btnFolder.setOnClickListener {
+        btnSelect.setSafeOnClickListener {
+            closeFlyouts()
+            selectTool(ToolType.SELECTION, btnSelect)
+        }
+
+        btnFolder.setSafeOnClickListener {
+            closeFlyouts()
             val provider = getSharedPreferences(FileManagerDialog.PREFS_NAME, Context.MODE_PRIVATE)
                 .getString("file_manager_provider", "builtin") ?: "builtin"
             if (provider == "builtin") {
-                closeFlyouts()
-                FileManagerDialog.newInstance().show(supportFragmentManager, FileManagerDialog.TAG)
+                if (supportFragmentManager.findFragmentByTag(FileManagerDialog.TAG) == null) {
+                    FileManagerDialog.newInstance().show(supportFragmentManager, FileManagerDialog.TAG)
+                }
             } else {
                 val willOpen = (flyoutSystemFileMenu.visibility != View.VISIBLE)
-                closeFlyouts()
                 if (willOpen) {
-                    flyoutSystemFileMenu.visibility = View.VISIBLE
+                    showFlyoutAnimated(flyoutSystemFileMenu)
+                } else {
+                    hideFlyoutAnimated(flyoutSystemFileMenu)
                 }
             }
         }
@@ -1573,14 +1573,13 @@ class MainActivity : AppCompatActivity(), EngineCallbacksInterface, FileManagerD
         btnBgColorWheel         = findViewById(R.id.btnBgColorWheel)
         btnApplyBgAllPages      = findViewById(R.id.btnApplyBgAllPages)
 
-        btnBackground.setOnClickListener {
+        btnBackground.setSafeOnClickListener {
             if (flyoutBackground.visibility == View.VISIBLE) {
-                flyoutBackground.visibility = View.GONE
+                hideFlyoutAnimated(flyoutBackground)
+                cardColorGridSubPanel.visibility = View.GONE
             } else {
-                flyoutBackground.visibility = View.VISIBLE
-                flyoutPen.visibility = View.GONE
-                flyoutEraser.visibility = View.GONE
-                flyoutShapes.visibility = View.GONE
+                closeFlyouts(except = flyoutBackground)
+                showFlyoutAnimated(flyoutBackground)
             }
         }
 
@@ -1776,15 +1775,19 @@ class MainActivity : AppCompatActivity(), EngineCallbacksInterface, FileManagerD
         navSettingsTouch.setOnClickListener  { selectSettingsCategory(navSettingsTouch) }
         navSettingsAbout.setOnClickListener  { selectSettingsCategory(navSettingsAbout) }
 
-        btnSettings.setOnClickListener {
-            closeFlyouts()
-            switchSettingsDateTime.isChecked = switchDateTimeOverlay.isChecked
-            selectSettingsCategory(navSettingsUi)
-            modalSettingsOverlay.visibility = View.VISIBLE
+        btnSettings.setSafeOnClickListener {
+            if (modalSettingsOverlay.visibility == View.VISIBLE) {
+                hideFlyoutAnimated(modalSettingsOverlay)
+            } else {
+                closeFlyouts(except = modalSettingsOverlay)
+                switchSettingsDateTime.isChecked = switchDateTimeOverlay.isChecked
+                selectSettingsCategory(navSettingsUi)
+                showFlyoutAnimated(modalSettingsOverlay)
+            }
         }
 
-        btnSettingsCloseTop.setOnClickListener { modalSettingsOverlay.visibility = View.GONE }
-        btnCloseSettings.setOnClickListener    { modalSettingsOverlay.visibility = View.GONE }
+        btnSettingsCloseTop.setSafeOnClickListener { hideFlyoutAnimated(modalSettingsOverlay) }
+        btnCloseSettings.setSafeOnClickListener    { hideFlyoutAnimated(modalSettingsOverlay) }
 
         switchSettingsDateTime.setOnCheckedChangeListener { _, isChecked ->
             switchDateTimeOverlay.isChecked = isChecked
@@ -2131,7 +2134,7 @@ class MainActivity : AppCompatActivity(), EngineCallbacksInterface, FileManagerD
 
 
         // ── Page Navigation, Zoom, Undo, Redo ─────────────────────────────────
-        btnPrevPage.setOnClickListener {
+        btnPrevPage.setSafeOnClickListener {
             val curr = whiteboardSurface.getActivePageIndex()
             if (curr > 0) {
                 val target = curr - 1
@@ -2142,7 +2145,7 @@ class MainActivity : AppCompatActivity(), EngineCallbacksInterface, FileManagerD
             }
         }
 
-        btnNextPage.setOnClickListener {
+        btnNextPage.setSafeOnClickListener {
             val curr  = whiteboardSurface.getActivePageIndex()
             val total = whiteboardSurface.getPageCount()
             if (curr + 1 < total) {
@@ -2154,14 +2157,14 @@ class MainActivity : AppCompatActivity(), EngineCallbacksInterface, FileManagerD
             }
         }
 
-        btnAddPage.setOnClickListener {
+        btnAddPage.setSafeOnClickListener {
             whiteboardSurface.addPage()
             updatePageInfo()
             updatePasteButtonState()
         }
-        btnFitPage.setOnClickListener { whiteboardSurface.fitPageToScreen() }
-        btnUndo.setOnClickListener    { whiteboardSurface.undo() }
-        btnRedo.setOnClickListener    { whiteboardSurface.redo() }
+        btnFitPage.setSafeOnClickListener { whiteboardSurface.fitPageToScreen() }
+        btnUndo.setSafeOnClickListener    { whiteboardSurface.undo() }
+        btnRedo.setSafeOnClickListener    { whiteboardSurface.redo() }
 
         // ── Page Manager Panel Setup ──────────────────────────────────────────
         flyoutPageManager       = findViewById(R.id.flyoutPageManager)
@@ -2326,15 +2329,15 @@ class MainActivity : AppCompatActivity(), EngineCallbacksInterface, FileManagerD
             pageAdapter.notifyDataSetChanged()
         }
 
-        btnClosePageManager.setOnClickListener {
-            flyoutPageManager.visibility = View.GONE
+        btnClosePageManager.setSafeOnClickListener {
+            hideFlyoutAnimated(flyoutPageManager)
         }
 
-        btnClearPageSelection.setOnClickListener {
+        btnClearPageSelection.setSafeOnClickListener {
             pageAdapter.clearSelection()
         }
 
-        btnSelectAllPages.setOnClickListener {
+        btnSelectAllPages.setSafeOnClickListener {
             if (pageAdapter.selectedIndices.size == whiteboardSurface.getPageCount()) {
                 pageAdapter.clearSelection()
             } else {
@@ -2342,7 +2345,7 @@ class MainActivity : AppCompatActivity(), EngineCallbacksInterface, FileManagerD
             }
         }
 
-        btnDeleteSelectedPages.setOnClickListener {
+        btnDeleteSelectedPages.setSafeOnClickListener {
             val toDelete = pageAdapter.selectedIndices.sortedDescending().toList()
             val total = whiteboardSurface.getPageCount()
             if (toDelete.size >= total) {
@@ -2367,12 +2370,12 @@ class MainActivity : AppCompatActivity(), EngineCallbacksInterface, FileManagerD
             updatePasteButtonState()
         }
 
-        tvPageInfo.setOnClickListener {
+        tvPageInfo.setSafeOnClickListener {
             if (flyoutPageManager.visibility == View.VISIBLE) {
-                flyoutPageManager.visibility = View.GONE
+                hideFlyoutAnimated(flyoutPageManager)
             } else {
-                closeFlyouts()
-                flyoutPageManager.visibility = View.VISIBLE
+                closeFlyouts(except = flyoutPageManager)
+                showFlyoutAnimated(flyoutPageManager)
                 pageAdapter.notifyDataSetChanged()
             }
         }
@@ -2443,14 +2446,73 @@ class MainActivity : AppCompatActivity(), EngineCallbacksInterface, FileManagerD
         }
     }
 
-    private fun closeFlyouts() {
-        flyoutPen.visibility            = View.GONE
-        flyoutEraser.visibility         = View.GONE
-        cardEraserSizeSlider.visibility = View.GONE
-        flyoutShapes.visibility         = View.GONE
-        flyoutBackground.visibility     = View.GONE
-        if (!isPageManagerPinned) {
-            flyoutPageManager.visibility = View.GONE
+    private fun showFlyoutAnimated(view: View) {
+        if (view.visibility == View.VISIBLE) return
+        view.animate().cancel()
+        view.alpha = 0f
+        view.scaleX = 0.95f
+        view.scaleY = 0.95f
+        view.visibility = View.VISIBLE
+        view.animate()
+            .alpha(1f)
+            .scaleX(1f)
+            .scaleY(1f)
+            .setDuration(130)
+            .setInterpolator(android.view.animation.DecelerateInterpolator())
+            .start()
+    }
+
+    private fun hideFlyoutAnimated(view: View, onEnd: (() -> Unit)? = null) {
+        if (view.visibility != View.VISIBLE) {
+            onEnd?.invoke()
+            return
+        }
+        view.animate().cancel()
+        view.animate()
+            .alpha(0f)
+            .scaleX(0.95f)
+            .scaleY(0.95f)
+            .setDuration(100)
+            .setInterpolator(android.view.animation.AccelerateInterpolator())
+            .withEndAction {
+                view.visibility = View.GONE
+                view.alpha = 1f
+                view.scaleX = 1f
+                view.scaleY = 1f
+                onEnd?.invoke()
+            }
+            .start()
+    }
+
+    private fun closeFlyouts(except: View? = null) {
+        if (::flyoutPen.isInitialized && flyoutPen != except) hideFlyoutAnimated(flyoutPen)
+        if (::flyoutEraser.isInitialized && flyoutEraser != except) {
+            hideFlyoutAnimated(flyoutEraser)
+            if (::cardEraserSizeSlider.isInitialized) cardEraserSizeSlider.visibility = View.GONE
+        }
+        if (::flyoutShapes.isInitialized && flyoutShapes != except) hideFlyoutAnimated(flyoutShapes)
+        if (::flyoutBackground.isInitialized && flyoutBackground != except) {
+            hideFlyoutAnimated(flyoutBackground)
+            if (::cardColorGridSubPanel.isInitialized) cardColorGridSubPanel.visibility = View.GONE
+        }
+        if (::flyoutSystemFileMenu.isInitialized && flyoutSystemFileMenu != except) hideFlyoutAnimated(flyoutSystemFileMenu)
+        if (::modalSettingsOverlay.isInitialized && modalSettingsOverlay != except) hideFlyoutAnimated(modalSettingsOverlay)
+        if (::flyoutPageManager.isInitialized && flyoutPageManager != except && !isPageManagerPinned) {
+            hideFlyoutAnimated(flyoutPageManager)
+        }
+    }
+
+    private fun View.setSafeOnClickListener(debounceMs: Long = 200L, onSafeClick: (View) -> Unit) {
+        var lastClickTime = 0L
+        setOnClickListener { v ->
+            val now = System.currentTimeMillis()
+            if (now - lastClickTime >= debounceMs) {
+                lastClickTime = now
+                v.animate().scaleX(0.92f).scaleY(0.92f).setDuration(60).withEndAction {
+                    v.animate().scaleX(1f).scaleY(1f).setDuration(70).start()
+                }.start()
+                onSafeClick(v)
+            }
         }
     }
 
@@ -3095,15 +3157,65 @@ class MainActivity : AppCompatActivity(), EngineCallbacksInterface, FileManagerD
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         if (ev.action == MotionEvent.ACTION_DOWN) {
+            val x = ev.rawX.toInt()
+            val y = ev.rawY.toInt()
+            val tempRect = Rect()
+
+            fun isInside(v: View?): Boolean {
+                if (v == null || v.visibility != View.VISIBLE) return false
+                v.getGlobalVisibleRect(tempRect)
+                return tempRect.contains(x, y)
+            }
+
+            // 1. Settings Overlay
+            if (::modalSettingsOverlay.isInitialized && modalSettingsOverlay.visibility == View.VISIBLE) {
+                val card = modalSettingsOverlay.findViewById<View>(R.id.cardSettingsWindow)
+                if (card != null && !isInside(card) && (::btnSettings.isInitialized && !isInside(btnSettings))) {
+                    hideFlyoutAnimated(modalSettingsOverlay)
+                }
+            }
+
+            // 2. Pen Flyout
+            if (::flyoutPen.isInitialized && flyoutPen.visibility == View.VISIBLE) {
+                if (!isInside(flyoutPen) && (::btnPen.isInitialized && !isInside(btnPen))) {
+                    hideFlyoutAnimated(flyoutPen)
+                }
+            }
+
+            // 3. Eraser Flyout
+            if (::flyoutEraser.isInitialized && flyoutEraser.visibility == View.VISIBLE) {
+                if (!isInside(flyoutEraser) && !isInside(if (::cardEraserSizeSlider.isInitialized) cardEraserSizeSlider else null) && (::btnEraser.isInitialized && !isInside(btnEraser))) {
+                    hideFlyoutAnimated(flyoutEraser)
+                    if (::cardEraserSizeSlider.isInitialized) cardEraserSizeSlider.visibility = View.GONE
+                }
+            }
+
+            // 4. Shapes Flyout
+            if (::flyoutShapes.isInitialized && flyoutShapes.visibility == View.VISIBLE) {
+                if (!isInside(flyoutShapes) && (::btnShapes.isInitialized && !isInside(btnShapes))) {
+                    hideFlyoutAnimated(flyoutShapes)
+                }
+            }
+
+            // 5. Background Flyout
+            if (::flyoutBackground.isInitialized && flyoutBackground.visibility == View.VISIBLE) {
+                if (!isInside(flyoutBackground) && !isInside(if (::cardColorGridSubPanel.isInitialized) cardColorGridSubPanel else null) && (::btnBackground.isInitialized && !isInside(btnBackground))) {
+                    hideFlyoutAnimated(flyoutBackground)
+                    if (::cardColorGridSubPanel.isInitialized) cardColorGridSubPanel.visibility = View.GONE
+                }
+            }
+
+            // 6. System File Menu
             if (::flyoutSystemFileMenu.isInitialized && flyoutSystemFileMenu.visibility == View.VISIBLE) {
-                val menuRect = Rect()
-                flyoutSystemFileMenu.getGlobalVisibleRect(menuRect)
-                val folderRect = Rect()
-                btnFolder.getGlobalVisibleRect(folderRect)
-                val x = ev.rawX.toInt()
-                val y = ev.rawY.toInt()
-                if (!menuRect.contains(x, y) && !folderRect.contains(x, y)) {
-                    flyoutSystemFileMenu.visibility = View.GONE
+                if (!isInside(flyoutSystemFileMenu) && (::btnFolder.isInitialized && !isInside(btnFolder))) {
+                    hideFlyoutAnimated(flyoutSystemFileMenu)
+                }
+            }
+
+            // 7. Page Manager Flyout (when not pinned)
+            if (::flyoutPageManager.isInitialized && flyoutPageManager.visibility == View.VISIBLE && !isPageManagerPinned) {
+                if (!isInside(flyoutPageManager) && (::tvPageInfo.isInitialized && !isInside(tvPageInfo))) {
+                    hideFlyoutAnimated(flyoutPageManager)
                 }
             }
         }
