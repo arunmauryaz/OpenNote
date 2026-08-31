@@ -564,14 +564,7 @@ void GlesRenderPipeline::drawStroke(const Stroke& s, const CanvasCamera& camera,
     auto renderMesh = [&](const std::vector<float>& stripVerts, const std::vector<float>& discVerts) {
         if (!stripVerts.empty()) {
             GLsizeiptr byteSize = (GLsizeiptr)(stripVerts.size() * sizeof(float));
-            if (isLiveStroke && byteSize <= m_liveVboSize) {
-                // Orphan the old buffer (driver can retire it without stalling) then sub-upload
-                glBufferData(GL_ARRAY_BUFFER, m_liveVboSize, nullptr, GL_STREAM_DRAW);
-                glBufferSubData(GL_ARRAY_BUFFER, 0, byteSize, stripVerts.data());
-            } else {
-                glBufferData(GL_ARRAY_BUFFER, byteSize, stripVerts.data(), GL_DYNAMIC_DRAW);
-                if (isLiveStroke) m_liveVboSize = byteSize;
-            }
+            glBufferData(GL_ARRAY_BUFFER, byteSize, stripVerts.data(), isLiveStroke ? GL_STREAM_DRAW : GL_DYNAMIC_DRAW);
             glEnableVertexAttribArray(m_stroke_posLoc);
             glVertexAttribPointer(m_stroke_posLoc, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
             glEnableVertexAttribArray(m_stroke_uvLoc);
@@ -580,7 +573,7 @@ void GlesRenderPipeline::drawStroke(const Stroke& s, const CanvasCamera& camera,
         }
 
         if (!discVerts.empty()) {
-            glBufferData(GL_ARRAY_BUFFER, discVerts.size()*sizeof(float), discVerts.data(), GL_DYNAMIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, discVerts.size()*sizeof(float), discVerts.data(), isLiveStroke ? GL_STREAM_DRAW : GL_DYNAMIC_DRAW);
             glEnableVertexAttribArray(m_stroke_posLoc);
             glVertexAttribPointer(m_stroke_posLoc, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
             glEnableVertexAttribArray(m_stroke_uvLoc);
@@ -974,10 +967,10 @@ void GlesRenderPipeline::renderLasso(const std::vector<Vec2f>& lassoPath, const 
         float py =  dx / len * halfW;
 
         float q[] = {
-            a.x - px, a.y - py,  0.f, 0.f,
-            a.x + px, a.y + py,  1.f, 0.f,
-            b.x - px, b.y - py,  0.f, 1.f,
-            b.x + px, b.y + py,  1.f, 1.f,
+            a.x - px, a.y - py,  -1.f, 0.f,
+            a.x + px, a.y + py,   1.f, 0.f,
+            b.x - px, b.y - py,  -1.f, 0.f,
+            b.x + px, b.y + py,   1.f, 0.f,
         };
         for (float v : q) verts.push_back(v);
     }
@@ -987,12 +980,10 @@ void GlesRenderPipeline::renderLasso(const std::vector<Vec2f>& lassoPath, const 
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferData(GL_ARRAY_BUFFER, verts.size()*sizeof(float), verts.data(), GL_DYNAMIC_DRAW);
 
-    GLint posLoc = glGetAttribLocation(m_strokeProgram, "aPos");
-    GLint uvLoc  = glGetAttribLocation(m_strokeProgram, "aUV");
-    glEnableVertexAttribArray(posLoc);
-    glVertexAttribPointer(posLoc, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
-    glEnableVertexAttribArray(uvLoc);
-    glVertexAttribPointer(uvLoc,  2, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*)(2*sizeof(float)));
+    glEnableVertexAttribArray(m_stroke_posLoc);
+    glVertexAttribPointer(m_stroke_posLoc, 2, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
+    glEnableVertexAttribArray(m_stroke_uvLoc);
+    glVertexAttribPointer(m_stroke_uvLoc,  2, GL_FLOAT, GL_FALSE, 4*sizeof(float), (void*)(2*sizeof(float)));
 
     int numQuads = (int)verts.size() / 16;
     for (int i = 0; i < numQuads; i++) {

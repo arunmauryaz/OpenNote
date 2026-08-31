@@ -237,12 +237,12 @@ predict_tip:
         const StrokePoint& pB = m_rawPoints[n-1];
         float vx = pB.x - pA.x;
         float vy = pB.y - pA.y;
-        // Clamp prediction to at most 8 canvas units to avoid wild jumps
-        // when the user lifts then slams the pen down fast.
         float speed = std::sqrt(vx*vx + vy*vy);
-        if (speed > 0.5f && speed < 8.0f) {
+        if (speed > 0.5f) {
+            // Scale velocity if movement is very large to avoid overshooting
+            float scale = (speed > 25.0f) ? (25.0f / speed) : 0.85f;
             m_currentStroke.points.push_back({
-                pB.x + vx, pB.y + vy, pB.pressure
+                pB.x + vx * scale, pB.y + vy * scale, pB.pressure
             });
             m_hasPredictedTip = true;
         }

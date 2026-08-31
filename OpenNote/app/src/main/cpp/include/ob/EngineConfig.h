@@ -29,7 +29,7 @@ struct EngineConfig {
 
     // Input
     bool     palmRejection     = true;
-    int32_t  touchRadiusThreshold = 20;   // px — contacts > this = palm
+    int32_t  touchRadiusThreshold = 350;  // px — contacts > 350px = actual resting palm
     bool     enableKalmanFilter   = false; // Zero-latency real-time touch streaming
 
     // Plugin

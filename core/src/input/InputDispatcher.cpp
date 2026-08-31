@@ -43,8 +43,8 @@ PalmRejector::PalmRejector(int32_t radiusThreshold)
 bool PalmRejector::isPalm(const TouchPointer& p) const {
     // Stylus / EMR pen input is NEVER rejected as palm
     if (p.isPen) return false;
-    // Reject only if touch contact diameter exceeds configured threshold (or fallback default 220px)
-    float thresh = m_radiusThreshold > 0 ? static_cast<float>(m_radiusThreshold) : 220.0f;
+    // Reject only if touch contact diameter exceeds configured threshold (safe minimum 350px)
+    float thresh = m_radiusThreshold >= 300 ? static_cast<float>(m_radiusThreshold) : 350.0f;
     return p.touchMajor > thresh;
 }
 
